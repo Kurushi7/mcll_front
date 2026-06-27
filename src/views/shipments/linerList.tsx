@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ButtonList, Column, FilterItem, ListFilter } from "../../types/table";
+import React, { useRef, useState } from "react";
+import { ButtonList, Column, ListFilter } from "../../types/table";
 import DataTable from "../../components/DataTable";
 import {
   Alert,
@@ -8,20 +8,17 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  FormControl,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
-  InputLabel,
   Menu,
   MenuItem,
-  Select,
   Snackbar,
   SnackbarCloseReason,
   TextField,
   ThemeProvider,
 } from "@mui/material";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
 import SmartButtonOutlinedIcon from "@mui/icons-material/SmartButtonOutlined";
@@ -163,7 +160,7 @@ const LinerList = () => {
       setAnchorEl(null);
     };
 
-    const handleAction = async (selectedAction: string, event: any) => {
+    const handleAction = async (selectedAction: string) => {
       handleMenuClose();
       if (selectedAction === "edit") {
         setNewLiner({
@@ -199,7 +196,7 @@ const LinerList = () => {
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(event) => handleAction("edit", event)}>
+          <MenuItem onClick={() => handleAction("edit")}>
             Edit
           </MenuItem>
         </Menu>
@@ -213,7 +210,7 @@ const LinerList = () => {
   });
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -284,7 +281,7 @@ const LinerList = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <PopupState variant="popover" popupId="demo-popup-popover">
-        {(popupState) => (
+        {() => (
           <div>
             <Popover
               open={openAnchor}
@@ -308,8 +305,8 @@ const LinerList = () => {
               >
                 <CardHeader title="Add new liner" />
                 <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-                  <Grid2 container size={12}>
-                    <Grid2 size={12}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
                       <FormLabel htmlFor="name">Name</FormLabel>
                       <TextField
                         id="name"
@@ -323,15 +320,15 @@ const LinerList = () => {
                         helperText={errors.name || ""}
                         value={newLiner.name}
                         onChange={handleChange}
-                        InputProps={{
-                          inputProps: {
+                        slotProps={{
+                          htmlInput: {
                             maxLength: 15,
                           },
                         }}
                       />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                       <FormLabel htmlFor="type">Type</FormLabel>
                       <TextField
                         id="type"
@@ -345,14 +342,14 @@ const LinerList = () => {
                         helperText={errors.type || ""}
                         value={newLiner.type}
                         onChange={handleChange}
-                        InputProps={{
-                          inputProps: {
+                        slotProps={{
+                          htmlInput: {
                             maxLength: 11,
                           },
                         }}
                       />
-                    </Grid2>
-                  </Grid2>
+                    </Grid>
+                  </Grid>
                 </CardContent>
                 <CardActions
                   style={{
@@ -361,12 +358,12 @@ const LinerList = () => {
                     paddingTop: "8px",
                   }}
                 >
-                  <Grid2>
+                  <Grid>
                     <Button type="submit" onClick={executeSaveLiner}>
                       Save Port
                     </Button>
                     <Button onClick={() => handlePopOverClose()}>Close</Button>
-                  </Grid2>
+                  </Grid>
                 </CardActions>
               </Card>
             </Popover>
@@ -375,7 +372,6 @@ const LinerList = () => {
       </PopupState>
       <DataTable
         columns={columns}
-        redirectTo="/port"
         handleFetchData={handleFetchData}
         primaryKey="liner_id"
         buttonList={actions}

@@ -1,4 +1,4 @@
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { PDFViewer } from "@react-pdf/renderer";
 import ShipmentListDocument from "./ShipmentListDocument";
 import { getShipmentList } from "../../composables/shippings/Shipments";
 import {
@@ -19,7 +19,7 @@ import {
   FormControlLabel,
   FormGroup,
   FormLabel,
-  Grid2,
+  Grid,
   Paper,
   Snackbar,
   SnackbarCloseReason,
@@ -35,7 +35,7 @@ import { CheckBox } from "@mui/icons-material";
 import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
 import FilterPanel from "../../components/dataTable/FilterPanel";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+
 
 const ShipmentListView = () => {
   const columns: Column[] = [
@@ -224,9 +224,9 @@ const ShipmentListView = () => {
   ];
 
   const [selectedColumns, setSelectedColumns] = useState<Column[]>(columns);
-  const [loading, setLoading] = React.useState(false);
+  const [_loading, setLoading] = React.useState(false);
   const primaryKey = "shipment_id";
-  const [state, setState] = useState<ListRequest>({
+  const [state, _setState] = useState<ListRequest>({
     paginationModel: {
       page: 0,
       pageSize: 10,
@@ -244,12 +244,12 @@ const ShipmentListView = () => {
   const [data, setData] = React.useState<any[]>([]);
   const [total, setTotal] = React.useState(0);
   const [filterData, setFilterData] = React.useState<any[]>([]);
-  const [error, setError] = React.useState("");
-  const [showError, setShowError] = React.useState(false);
+  const [_error, setError] = React.useState("");
+  const [_showError, setShowError] = React.useState(false);
   const [pdfUrl, setPdfUrl] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [snackMessage, setSnackMessage] = React.useState<{
+  const [snackMessage, _setSnackMessage] = React.useState<{
     message: string;
     severity: "success" | "info" | "warning" | "error" | undefined;
   }>({
@@ -307,7 +307,7 @@ const ShipmentListView = () => {
   };
 
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -317,8 +317,7 @@ const ShipmentListView = () => {
     setOpenSnackBar(false);
   };
 
-  const handleToggle = (event: any, columnId: string) => {
-    const checked = event.target.checked;
+  const handleToggle = (_event: any, columnId: string) => {
     const column = columns.find((col) => col.field === columnId);
 
     if (!column) return;
@@ -360,17 +359,17 @@ const ShipmentListView = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Paper sx={{ width: "100%" }}>
-        <Grid2 container spacing={2}>
-          <Grid2 size={5}>
+        <Grid container spacing={2}>
+          <Grid size={5}>
             <FilterPanel
               columns={columns}
               fetchData={fetchData}
               data={filterData}
               setData={setFilterData}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2 size={1} sx={{ display: "flex", justifyContent: "center" }}>
+          <Grid size={1} sx={{ display: "flex", justifyContent: "center" }}>
             <Box
               sx={{
                 width: "1px",
@@ -378,16 +377,16 @@ const ShipmentListView = () => {
                 height: "100%",
               }}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2 size={6}>
+          <Grid size={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Select columns</FormLabel>
               <FormGroup>
-                <Grid2 container spacing={2}>
+                <Grid container spacing={2}>
                   {selectedColumns.map((column, index) => {
                     return (
-                      <Grid2 size={3} key={index}>
+                      <Grid size={3} key={index}>
                         <FormControlLabel
                           key={index}
                           label={column.headerName}
@@ -404,13 +403,13 @@ const ShipmentListView = () => {
                             />
                           }
                         />
-                      </Grid2>
+                      </Grid>
                     );
                   })}
-                </Grid2>
+                </Grid>
               </FormGroup>
             </FormControl>
-          </Grid2>
+          </Grid>
 
           {open && (
             <Dialog
@@ -418,11 +417,13 @@ const ShipmentListView = () => {
               onClose={() => setOpen(false)}
               maxWidth="md"
               hideBackdrop={true}
-              PaperProps={{
-                style: {
-                  width: "100%",
-                  maxHeight: "90vh",
-                },
+              slotProps={{
+                paper: {
+                  style: {
+                    width: "100%",
+                    maxHeight: "90vh",
+                  },
+                }
               }}
             >
               <DialogContent>
@@ -457,7 +458,7 @@ const ShipmentListView = () => {
               </DialogContent>
             </Dialog>
           )}
-        </Grid2>
+        </Grid>
 
         {openSnackBar && (
           <Snackbar

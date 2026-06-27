@@ -1,8 +1,8 @@
 import {
   GridPaginationModel,
-  GridSortItem,
-  GridValueFormatter,
+  GridSortModel,
 } from "@mui/x-data-grid";
+import {JSX} from "react";
 
 export interface Operator {
   name: string;
@@ -42,7 +42,7 @@ export interface ListFilter {
   limit: number;
   offset: number;
   filter: FilterItem[];
-  sort: GridSortItem[];
+  sort: GridSortModel;
 }
 
 export interface ButtonList {
@@ -55,7 +55,7 @@ export interface ButtonList {
 export type ListRequest = {
   paginationModel: GridPaginationModel;
   filterModel: FilterItem[];
-  sortModel: GridSortItem[];
+  sortModel: GridSortModel;
 };
 
 export type FilterItems = {

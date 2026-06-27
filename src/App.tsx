@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter, Navigate, Route, Routes, To } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./views/login";
 import { MainLayout } from "./views/mainLayout/mainLayout";
 import { AuthProvider, useAuth } from "./composables/auth/AuthContext";
@@ -81,7 +81,7 @@ const App: React.FC = () => {
           </Route>
 
           <Route
-            path="process_flow"
+            path="process-flow"
             element={<ProcessLayout />}
             />
 

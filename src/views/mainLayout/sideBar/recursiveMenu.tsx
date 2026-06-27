@@ -129,6 +129,11 @@ const menuItems = [
     code: "records",
     label: "Records",
   },
+  {
+    code: "process_flow",
+    label: "Shipping flow",
+    to: "/process-flow",
+  }
 ];
 
 const SidebarMenuList = () => {

@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -364,7 +364,6 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
         <ThemeProvider theme={customTheme}>
           <DataTable
             columns={columns}
-            redirectTo=""
             handleFetchData={handleFetchData}
             primaryKey="transaction_id"
             buttonList={actions}

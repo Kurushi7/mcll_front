@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ButtonList, Column, FilterItem, ListFilter } from "../../types/table";
 import DataTable from "../../components/DataTable";
 import { getPricesList } from "../../composables/persons/Prices";
-import React, { useEffect } from "react";
+import React from "react";
 import Price from "./price";
 import { AxiosError, AxiosResponse } from "axios";
 import {
@@ -72,7 +72,7 @@ const PriceList: React.FC<PriceProps> = ({ parentPersonId }) => {
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(row) => handleAction("edit")}>Edit</MenuItem>
+          <MenuItem onClick={() => handleAction("edit")}>Edit</MenuItem>
         </Menu>
       </>
     );
@@ -300,7 +300,7 @@ const PriceList: React.FC<PriceProps> = ({ parentPersonId }) => {
   };
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -312,7 +312,7 @@ const PriceList: React.FC<PriceProps> = ({ parentPersonId }) => {
   const actions: ButtonList[] = [
     {
       key: "add-price",
-      handleOnClick: (data?: any) => {
+      handleOnClick: () => {
         setOpen(true);
       },
       label: "Add a new price",
@@ -328,7 +328,6 @@ const PriceList: React.FC<PriceProps> = ({ parentPersonId }) => {
     <>
       <DataTable
         columns={columns}
-        redirectTo="/price"
         handleFetchData={handleFetchData}
         primaryKey="price_id"
         buttonList={actions}

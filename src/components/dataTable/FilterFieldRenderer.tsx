@@ -1,7 +1,7 @@
 import { Box, MenuItem, Select, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 interface Props {
   type: string;
@@ -18,10 +18,9 @@ const FilterFieldRenderer: React.FC<Props> = ({
   inputValue,
   placeholder,
   options,
-  modelValue,
   setModelValue,
 }) => {
-  const [error, setError] = useState("");
+  const [error, _] = useState("");
 
   // useEffect(() => {
   //   setModelValue(inputValue);

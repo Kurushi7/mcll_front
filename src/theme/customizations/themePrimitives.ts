@@ -1,12 +1,11 @@
-import { createTheme, alpha, PaletteMode, Shadows } from "@mui/material/styles";
-import { light } from "@mui/material/styles/createPalette";
+import { createTheme, alpha, Shadows } from "@mui/material/styles";
 
 declare module "@mui/material/Paper" {
   interface PaperPropsVariantOverrides {
     highlighted: true;
   }
 }
-declare module "@mui/material/styles/createPalette" {
+declare module "@mui/material/styles" {
   interface ColorRange {
     50: string;
     100: string;
@@ -98,7 +97,7 @@ export const getDesignTokens = () => {
 
   return {
     palette: {
-      light,
+      mode: 'light',
       primary: {
         light: brand[200],
         main: brand[400],

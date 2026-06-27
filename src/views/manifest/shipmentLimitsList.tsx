@@ -8,15 +8,13 @@ import {
   Card,
   CardActions,
   CardContent,
-  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  FormHelperText,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   InputLabel,
   Menu,
@@ -31,7 +29,6 @@ import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
 import SmartButtonOutlinedIcon from "@mui/icons-material/SmartButtonOutlined";
 import ListConstants from "../../composables/constants/table";
-import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import {
@@ -40,16 +37,12 @@ import {
   getShipmentLimitList,
   updateShipmentLimit,
 } from "../../composables/manifest/ShipmentLimit";
-import Popover from "@mui/material/Popover";
-import PopupState from "material-ui-popup-state";
-import countries, { CountryType } from "../../lists/countries";
 import {
   LinersModel,
   PortModel,
   ShipmentLimitModel,
 } from "../../types/request";
-import { undefined } from "zod";
-import { GridSortItem } from "@mui/x-data-grid";
+import { GridSortModel } from "@mui/x-data-grid";
 import { getPortList } from "../../composables/persons/Ports";
 
 interface VesselsParams {
@@ -61,12 +54,10 @@ interface VesselsParams {
 const ShipmentLimitsList = () => {
   const [reloadData, setReloadData] = React.useState(false);
   const customTheme = createTheme(getTheme());
-  const navigate = useNavigate();
   const user_id = useSelector((state: RootState) => state.user.user_id);
-  const [popOverAnchorEl, setPopOverAnchorEl] = useState<HTMLElement | null>(
+  const [_popOverAnchorEl, setPopOverAnchorEl] = useState<HTMLElement | null>(
     null,
   );
-  const openAnchor = Boolean(popOverAnchorEl);
   const buttonRefs = useRef<any>({});
   const [open, setOpen] = React.useState(false);
 
@@ -166,7 +157,7 @@ const ShipmentLimitsList = () => {
     typeof setTimeout
   > | null>(null);
 
-  const [port, setPort] = React.useState<PortModel[]>([]);
+  const [_port, setPort] = React.useState<PortModel[]>([]);
 
   const blankShipmentLimit: ShipmentLimitModel = {
     port_of_loading: null,
@@ -179,7 +170,7 @@ const ShipmentLimitsList = () => {
     currency: "",
   };
 
-  const [portOfLoadingList, setPortOfLoadingList] = React.useState<PortModel[]>(
+  const [portOfLoadingList, _setPortOfLoadingList] = React.useState<PortModel[]>(
     [],
   );
 
@@ -224,7 +215,7 @@ const ShipmentLimitsList = () => {
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(row) => handleAction("edit")}>Edit</MenuItem>
+          <MenuItem onClick={() => handleAction("edit")}>Edit</MenuItem>
         </Menu>
       </>
     );
@@ -235,7 +226,7 @@ const ShipmentLimitsList = () => {
   };
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+      _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -244,7 +235,7 @@ const ShipmentLimitsList = () => {
     setOpenSnackBar(false);
   };
 
-  const [linerOptions, setLinerOptions] = React.useState<LinersModel[] | null>(
+  const [linerOptions, _setLinerOptions] = React.useState<LinersModel[] | null>(
     null,
   );
 
@@ -261,7 +252,7 @@ const ShipmentLimitsList = () => {
     liner_id: 0,
   };
 
-  const [vessels, setVessels] = useState<VesselsParams>(blankVesssel);
+  const [vessels, _] = useState<VesselsParams>(blankVesssel);
 
   const thirdPartiesOptions: { id: string; label: string }[] = [
     {
@@ -277,14 +268,6 @@ const ShipmentLimitsList = () => {
       label: "fac",
     },
   ];
-
-  const [shipmentLimitOptions, setShipmentLimitOptions] = useState<
-    { id: string; label: string }[]
-  >([
-    { id: "emea", label: "EMEA" },
-    { id: "er", label: "Feeder vessel" },
-    { id: "figaro", label: "Extra caller" },
-  ]);
 
   const currencyOptions: { id: string; label: string }[] = [
     {
@@ -305,7 +288,7 @@ const ShipmentLimitsList = () => {
     },
   ];
 
-  const [errors, setErrors] = useState<Record<string, string | null>>({
+  const [errors, _setErrors] = useState<Record<string, string | null>>({
     valid_from: "",
     valid_to: "",
     max_rate: "",
@@ -313,7 +296,7 @@ const ShipmentLimitsList = () => {
   });
 
   const getPortOptions = async () => {
-    const sortItem: GridSortItem[] = [
+    const sortItem: GridSortModel = [
       {
         field: "port_id",
         sort: "desc",
@@ -357,15 +340,11 @@ const ShipmentLimitsList = () => {
 
   const getPortsListDebounced = async (
     event: any,
-    type: string,
-    newInputValue: any,
     reason: string,
   ) => {
     if (!event) return;
 
     if (reason !== "input") return;
-
-    const name = event.target.value;
 
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -379,7 +358,7 @@ const ShipmentLimitsList = () => {
   };
 
   const handleAutoCompleteChange = async (
-    event: React.SyntheticEvent,
+      _event: React.SyntheticEvent,
     newValue: any,
     field: string,
   ) => {
@@ -458,13 +437,16 @@ const ShipmentLimitsList = () => {
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
-          },
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
+          }
         }}
       >
+        <>
         <DialogTitle>Add/edit shipment limits</DialogTitle>
         <DialogContent>
           <Card
@@ -475,8 +457,8 @@ const ShipmentLimitsList = () => {
             }}
           >
             <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-              <Grid2 container spacing={1} size={12}>
-                <Grid2 size={6}>
+              <Grid container spacing={1} size={12}>
+                <Grid size={6}>
                   <FormLabel htmlFor="valid_from">Valid from</FormLabel>
                   <TextField
                     id="valid_from"
@@ -491,9 +473,9 @@ const ShipmentLimitsList = () => {
                     value={shipmentLimit.valid_from}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="valid_to">Valid to</FormLabel>
                   <TextField
                     id="valid_to"
@@ -508,9 +490,9 @@ const ShipmentLimitsList = () => {
                     value={shipmentLimit.valid_to}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="port_of_loading">
                     Port of loading
                   </FormLabel>
@@ -535,18 +517,16 @@ const ShipmentLimitsList = () => {
                         "port_of_loading",
                       )
                     }
-                    onInputChange={(event, newInputValue, reason) =>
+                    onInputChange={(event, _newInputValue, reason) =>
                       getPortsListDebounced(
                         event,
-                        "loading",
-                        newInputValue,
                         reason,
                       )
                     }
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <InputLabel htmlFor="liner_id">Liner name</InputLabel>
                   <FormControl variant="outlined" style={{ width: "100%" }}>
                     <Select
@@ -569,9 +549,9 @@ const ShipmentLimitsList = () => {
                         })}
                     </Select>
                   </FormControl>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="third_party">Third parties</FormLabel>
                   <Select
                     id="third_party"
@@ -594,9 +574,9 @@ const ShipmentLimitsList = () => {
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="Rate">Price</FormLabel>
                   <TextField
                     id="price"
@@ -617,9 +597,9 @@ const ShipmentLimitsList = () => {
                       });
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -642,8 +622,8 @@ const ShipmentLimitsList = () => {
                         );
                       })}
                   </Select>
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
             <CardActions
               style={{
@@ -675,10 +655,10 @@ const ShipmentLimitsList = () => {
             </Button>
           </div>
         </DialogActions>
+        </>
       </Dialog>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="shipment_limit_id"
         buttonList={actions}

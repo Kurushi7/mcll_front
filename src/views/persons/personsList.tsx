@@ -25,7 +25,7 @@ const PersonsList: React.FC<PersonsProps> = ({ personType }) => {
   const customTheme = createTheme(getTheme());
   const navigate = useNavigate();
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
-  const [snackMessage, setSnackMessage] = React.useState<{
+  const [snackMessage, _setSnackMessage] = React.useState<{
     message: string;
     severity: "success" | "info" | "warning" | "error" | undefined;
   }>({
@@ -71,7 +71,7 @@ const PersonsList: React.FC<PersonsProps> = ({ personType }) => {
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(row) => handleAction("edit")}>Edit</MenuItem>
+          <MenuItem onClick={() => handleAction("edit")}>Edit</MenuItem>
         </Menu>
       </>
     );
@@ -259,7 +259,7 @@ const PersonsList: React.FC<PersonsProps> = ({ personType }) => {
   };
 
   const handleClose = (
-    event: React.SyntheticEvent<any> | Event,
+    _event: React.SyntheticEvent<any> | Event,
     reason?: string,
   ) => {
     if (reason === "clickaway") {
@@ -293,7 +293,7 @@ const PersonsList: React.FC<PersonsProps> = ({ personType }) => {
   const actions: ButtonList[] = [
     {
       key: `create-${personType}`,
-      handleOnClick: (data?: any) => {
+      handleOnClick: () => {
         navigate(`/${personType}`);
       },
       label: `Create new ${personType}`,
@@ -306,7 +306,6 @@ const PersonsList: React.FC<PersonsProps> = ({ personType }) => {
       <DataTable
         key={personType}
         columns={columns}
-        redirectTo={`/${personType}`}
         handleFetchData={handleFetchData}
         primaryKey="person_id"
         buttonList={actions}

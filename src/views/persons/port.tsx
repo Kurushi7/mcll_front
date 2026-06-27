@@ -13,7 +13,7 @@ import {
   DialogTitle,
   FormControlLabel,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -182,8 +182,8 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
               }}
             />
             <CardContent sx={{ paddingTop: "16px" }}>
-              <Grid2 container spacing={1} offset={1} size={8}>
-                <Grid2 size={8}>
+              <Grid container spacing={1} offset={1} size={8}>
+                <Grid size={8}>
                   <FormLabel htmlFor="name">Name</FormLabel>
                   <TextField
                     id="name"
@@ -205,10 +205,10 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                       },
                     }}
                   />
-                </Grid2>
-                <Grid2 size={4} />
+                </Grid>
+                <Grid size={4} />
 
-                <Grid2 size={8}>
+                <Grid size={8}>
                   <FormLabel htmlFor="code">Code</FormLabel>
                   <TextField
                     id="code"
@@ -230,10 +230,10 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                       },
                     }}
                   />
-                </Grid2>
-                <Grid2 size={4} />
+                </Grid>
+                <Grid size={4} />
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="Type">Type</FormLabel>
                   <Select
                     labelId="Type"
@@ -254,9 +254,9 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormControlLabel
                     label="Default"
                     control={
@@ -267,8 +267,8 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                     }
                     labelPlacement="start"
                   />
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

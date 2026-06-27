@@ -231,7 +231,6 @@ const ProductList = () => {
     <ThemeProvider theme={customTheme}>
       <DataTable
         columns={columns}
-        redirectTo={`/product`}
         handleFetchData={handleFetchData}
         primaryKey="product_id"
         buttonList={actions}

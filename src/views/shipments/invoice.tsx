@@ -11,7 +11,7 @@ import {
   DialogContent,
   DialogTitle,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   Snackbar,
@@ -307,8 +307,8 @@ const Invoice: React.FC<Props> = ({
               }}
             />
             <CardContent sx={{ paddingTop: "16px" }}>
-              <Grid2 container spacing={1} offset={1} size={8}>
-                <Grid2 size={12}>
+              <Grid container spacing={1} offset={1} size={8}>
+                <Grid size={12}>
                   <FormLabel htmlFor="invoice_ref">Invoice Ref</FormLabel>
                   <TextField
                     id="invoice_ref"
@@ -328,9 +328,9 @@ const Invoice: React.FC<Props> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -353,8 +353,8 @@ const Invoice: React.FC<Props> = ({
                         );
                       })}
                   </Select>
-                </Grid2>
-                <Grid2 size={6}>
+                </Grid>
+                <Grid size={6}>
                   <FormLabel htmlFor="rate">Exchange rate</FormLabel>
                   <TextField
                     id="rate"
@@ -369,9 +369,9 @@ const Invoice: React.FC<Props> = ({
                     value={newInvoice.rate}
                     onChange={(event) => handleChange(event, "float")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="invoice_date">Invoice date</FormLabel>
                   <TextField
                     id="invoice_date"
@@ -386,9 +386,9 @@ const Invoice: React.FC<Props> = ({
                     value={newInvoice.invoice_date}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="due_date">Due date</FormLabel>
                   <TextField
                     id="due_date"
@@ -403,9 +403,9 @@ const Invoice: React.FC<Props> = ({
                     value={newInvoice.due_date}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="total">Total</FormLabel>
                   <TextField
                     id="total"
@@ -425,9 +425,9 @@ const Invoice: React.FC<Props> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="vat">VAT</FormLabel>
                   <TextField
                     id="vat"
@@ -444,9 +444,9 @@ const Invoice: React.FC<Props> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="total_with_vat">VAT total</FormLabel>
                   <TextField
                     id="total_with_vat"
@@ -466,8 +466,8 @@ const Invoice: React.FC<Props> = ({
                       },
                     }}
                   />
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

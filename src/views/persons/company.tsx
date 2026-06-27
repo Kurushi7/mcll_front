@@ -6,7 +6,7 @@ import {
   CardContent,
   Divider,
   FormLabel,
-  Grid2,
+  Grid,
   Snackbar,
   TextField,
 } from "@mui/material";
@@ -182,15 +182,15 @@ const Company: React.FC<CompanyProps> = ({
       }}
     >
       <CardContent sx={{ paddingTop: "16px" }}>
-        <Grid2 container spacing={1} offset={1} size={8} sx={{ my: 2 }}>
-          <Grid2 size={12}>
+        <Grid container spacing={1} offset={1} size={8} sx={{ my: 2 }}>
+          <Grid size={12}>
             <Divider variant="middle">Company info</Divider>
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
 
-        <Grid2 container spacing={1} size={10} sx={{ paddingLeft: "16px" }}>
+        <Grid container spacing={1} size={10} sx={{ paddingLeft: "16px" }}>
           {/* Company form*/}
-          <Grid2 size={6}>
+          <Grid size={6}>
             <FormLabel htmlFor="name">Name</FormLabel>
             <TextField
               id="name"
@@ -210,8 +210,8 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-          </Grid2>
-          <Grid2 size={6}>
+          </Grid>
+          <Grid size={6}>
             <FormLabel htmlFor="email">Email</FormLabel>
             <TextField
               id="email"
@@ -232,9 +232,9 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-            <Grid2 />
-          </Grid2>
-          <Grid2 size={12}>
+            <Grid />
+          </Grid>
+          <Grid size={12}>
             <FormLabel htmlFor="address_line1">Address line 1</FormLabel>
             <TextField
               id="address_line1"
@@ -258,9 +258,9 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2 size={12}>
+          <Grid size={12}>
             <FormLabel htmlFor="address_line2">Address line 2</FormLabel>
             <TextField
               id="address_line2"
@@ -281,8 +281,8 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-          </Grid2>
-          <Grid2 size={6}>
+          </Grid>
+          <Grid size={6}>
             <FormLabel htmlFor="city">City</FormLabel>
             <TextField
               id="city"
@@ -303,9 +303,9 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2 size={6}>
+          <Grid size={6}>
             <FormLabel htmlFor="country">Country</FormLabel>
             <TextField
               id="country"
@@ -326,7 +326,7 @@ const Company: React.FC<CompanyProps> = ({
                 },
               }}
             />
-          </Grid2>
+          </Grid>
 
           <CardActions
             sx={{
@@ -344,7 +344,7 @@ const Company: React.FC<CompanyProps> = ({
               Save Company
             </Button>
           </CardActions>
-        </Grid2>
+        </Grid>
       </CardContent>
       {openSnackBar && (
         <Snackbar

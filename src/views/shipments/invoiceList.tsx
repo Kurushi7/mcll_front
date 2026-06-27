@@ -430,7 +430,6 @@ const InvoiceList: React.FC<Props> = ({ type, shipmentId, hblId }) => {
     <ThemeProvider theme={customTheme}>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="invoice_id"
         buttonList={actions}

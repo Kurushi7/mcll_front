@@ -3,7 +3,7 @@ import {
   Autocomplete,
   Button,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   Snackbar,
@@ -424,8 +424,8 @@ const HblForm: React.FC<hblProps> = ({
           {shipmentHblId ? shipmentHbl.hbl_no : "Adding new hbl"}
         </CardTitle>
         <div style={{ paddingTop: "16px", paddingLeft: "16px" }}>
-          <Grid2 container spacing={2}>
-            <Grid2 size={5}>
+          <Grid container spacing={2}>
+            <Grid size={5}>
               <FormLabel htmlFor="hbl_no">Hbl no</FormLabel>
               <TextField
                 id="hbl_no"
@@ -444,8 +444,8 @@ const HblForm: React.FC<hblProps> = ({
                   },
                 }}
               />
-            </Grid2>
-            <Grid2 size={5}>
+            </Grid>
+            <Grid size={5}>
               <FormLabel htmlFor="movement_type">Movement type</FormLabel>
               <Select
                 id="movement_type"
@@ -465,10 +465,10 @@ const HblForm: React.FC<hblProps> = ({
                     );
                   })}
               </Select>
-            </Grid2>
-            <Grid2 size={2}></Grid2>
+            </Grid>
+            <Grid size={2}></Grid>
 
-            <Grid2 size={5}>
+            <Grid size={5}>
               <FormLabel htmlFor="shipper">Shipper</FormLabel>
               <Autocomplete
                 id="shipper"
@@ -490,8 +490,8 @@ const HblForm: React.FC<hblProps> = ({
                   handleAutoCompleteChange(event, newValue, "shipper")
                 }
               />
-            </Grid2>
-            <Grid2 size={5}>
+            </Grid>
+            <Grid size={5}>
               <FormLabel htmlFor="delivery_agent">Delivery agent</FormLabel>
               <Autocomplete
                 id="delivery_agent1"
@@ -517,10 +517,10 @@ const HblForm: React.FC<hblProps> = ({
                 }
               />
               {errors.delivery_agent && <span>{errors.delivery_agent}</span>}
-            </Grid2>
-            <Grid2 size={2}></Grid2>
+            </Grid>
+            <Grid size={2}></Grid>
 
-            <Grid2 size={5}>
+            <Grid size={5}>
               <FormLabel htmlFor="consignee">Consignee</FormLabel>
               <Autocomplete
                 id="consignee"
@@ -543,9 +543,9 @@ const HblForm: React.FC<hblProps> = ({
                 }
               />
               {errors.consignee && <span>{errors.consignee}</span>}
-            </Grid2>
+            </Grid>
 
-            <Grid2 size={5}>
+            <Grid size={5}>
               <FormLabel htmlFor="unstuffing_place">Unstuffing place</FormLabel>
               <TextField
                 id="unstuffing_place"
@@ -561,9 +561,9 @@ const HblForm: React.FC<hblProps> = ({
                   },
                 }}
               />
-            </Grid2>
+            </Grid>
 
-            <Grid2 size={5}>
+            <Grid size={5}>
               <FormLabel htmlFor="notify_party1">Notify party 1</FormLabel>
               <Autocomplete
                 id="notify_party1"
@@ -585,8 +585,8 @@ const HblForm: React.FC<hblProps> = ({
                   handleAutoCompleteChange(event, newValue, "notify_party1")
                 }
               />
-            </Grid2>
-            <Grid2 size={5}>
+            </Grid>
+            <Grid size={5}>
               <FormLabel htmlFor="notify_party2">Notify party 2</FormLabel>
               <Autocomplete
                 id="notify_party2"
@@ -608,10 +608,10 @@ const HblForm: React.FC<hblProps> = ({
                   handleAutoCompleteChange(event, newValue, "notify_party2")
                 }
               />
-            </Grid2>
-            <Grid2 size={2} />
+            </Grid>
+            <Grid size={2} />
 
-            <Grid2 size={10} sx={{ pt: 2, mb: 3 }}>
+            <Grid size={10} sx={{ pt: 2, mb: 3 }}>
               {shipmentHblId && !clone && (
                 <ContainerLines
                   shipmentHblId={shipmentHblId}
@@ -619,9 +619,9 @@ const HblForm: React.FC<hblProps> = ({
                   setReloadData={setReloadContainerLines}
                 />
               )}
-            </Grid2>
-            <Grid2 size={2} />
-          </Grid2>
+            </Grid>
+            <Grid size={2} />
+          </Grid>
         </div>
         <div
           style={{
@@ -630,11 +630,11 @@ const HblForm: React.FC<hblProps> = ({
             paddingTop: "8px",
           }}
         >
-          <Grid2>
+          <Grid>
             <Button type="submit" onClick={saveHbl}>
               Save Hbl
             </Button>
-          </Grid2>
+          </Grid>
         </div>
       </div>
       {openSnackBar && (

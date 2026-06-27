@@ -215,7 +215,6 @@ const PortList = () => {
     <ThemeProvider theme={customTheme}>
       <DataTable
         columns={columns}
-        redirectTo="/port"
         handleFetchData={handleFetchData}
         primaryKey="port_id"
         buttonList={actions}

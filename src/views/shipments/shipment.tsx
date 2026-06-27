@@ -11,7 +11,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 
-import Grid2 from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import React, { useEffect, useState } from "react";
 import TransactionNoteList from "./transactionNoteList";
 import CpInvoice from "./cpInvoice";
@@ -28,7 +28,6 @@ import PopupState from "material-ui-popup-state";
 import HblForm from "./hblForm";
 import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
-import { UpdateShipmentModel } from "../../types/updateRequest";
 import { AxiosResponse } from "axios";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
@@ -79,7 +78,7 @@ const Shipment = () => {
   };
 
   const handleClose = (
-    event: React.SyntheticEvent<any> | Event,
+    _: any,
     reason?: string,
   ) => {
     if (reason === "clickaway") {
@@ -247,7 +246,7 @@ const Shipment = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box sx={{ width: "auto" }}>
-        <Grid2 display="flex">
+        <Grid container>
           <div style={{ margin: "8px" }}>
             <Badge badgeContent={hblTotal} color="primary">
               <Button size="small" variant="outlined" onClick={handleOpen}>
@@ -275,9 +274,9 @@ const Shipment = () => {
               </Button>
             </div>
           )}
-        </Grid2>
+        </Grid>
         <PopupState variant="popover" popupId="demo-popup-popover">
-          {(popupState) => (
+          {(_) => (
             <Popover
               id="shipment-vessel"
               open={openAnchor}
@@ -313,16 +312,16 @@ const Shipment = () => {
               >
                 {hblList.length > 0 &&
                   hblList.map((record, index) => (
-                    <Grid2 container={true} key={index} spacing={2} mb={2}>
-                      <Grid2 size={6}>
+                    <Grid container={true} key={index} spacing={2} sx={{ mb:2}}>
+                      <Grid size={6}>
                         <Link
                           to={`/hbl/${shipmentId}/${record.shipment_hbl_id}`}
                         >
                           {record.hbl_no}
                         </Link>
-                      </Grid2>
+                      </Grid>
 
-                      <Grid2 size={3} mb={2}>
+                      <Grid size={3} sx={{ mb:2}}>
                         <span
                           onClick={() => handleClone(record.shipment_hbl_id)}
                           style={{
@@ -333,9 +332,9 @@ const Shipment = () => {
                         >
                           Clone hbl
                         </span>
-                      </Grid2>
+                      </Grid>
 
-                      <Grid2 size={3}>
+                      <Grid size={3}>
                         <span
                           onClick={() => showDeleteSwal(record.shipment_hbl_id)}
                           style={{
@@ -346,12 +345,12 @@ const Shipment = () => {
                         >
                           Delete hbl
                         </span>
-                      </Grid2>
-                    </Grid2>
+                      </Grid>
+                    </Grid>
                   ))}
 
-                <Grid2 container spacing={2}>
-                  <Grid2
+                <Grid container spacing={2}>
+                  <Grid
                     size={12}
                     style={{
                       display: "flex",
@@ -363,8 +362,8 @@ const Shipment = () => {
                     <Button variant="text" onClick={handleCloseAnchor}>
                       Close
                     </Button>
-                  </Grid2>
-                </Grid2>
+                  </Grid>
+                </Grid>
               </Paper>
             </Popover>
           )}
@@ -386,8 +385,8 @@ const Shipment = () => {
               setClone={setClone}
             />
 
-            <Grid2 container spacing={2}>
-              <Grid2 size={10}>
+            <Grid container spacing={2}>
+              <Grid size={10}>
                 {shipmentHblId && (
                   <TransactionNoteList
                     key={newHblId}
@@ -395,16 +394,16 @@ const Shipment = () => {
                     shipmentId={intShipmentId}
                   />
                 )}
-              </Grid2>
-              <Grid2 size={2} />
+              </Grid>
+              <Grid size={2} />
 
-              <Grid2 size={10}>
+              <Grid size={10}>
                 {shipmentHblId && (
                   <CpInvoice key={newHblId} shipmentId={intShipmentId} />
                 )}
-              </Grid2>
-              <Grid2 size={2} />
-            </Grid2>
+              </Grid>
+              <Grid size={2} />
+            </Grid>
           </CardContent>
           <CardActions
             style={{

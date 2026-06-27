@@ -349,7 +349,6 @@ const OwnersList: React.FC<OwnerProps> = ({ parentPersonId }) => {
     <>
       <DataTable
         columns={columns}
-        redirectTo="/owner"
         handleFetchData={handleFetchData}
         primaryKey="person_id"
         buttonList={actions}

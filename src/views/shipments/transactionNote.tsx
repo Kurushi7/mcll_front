@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   TextField,
@@ -220,8 +220,8 @@ const TransactionNote: React.FC<Props> = ({
             }}
           >
             <CardContent>
-              <Grid2 container size={12} spacing={1}>
-                <Grid2 size={6}>
+              <Grid container size={12} spacing={1}>
+                <Grid size={6}>
                   <FormLabel htmlFor="ref_no">Debit/Credit note ref</FormLabel>
                   <TextField
                     id="ref_no"
@@ -241,9 +241,9 @@ const TransactionNote: React.FC<Props> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="amount">Debit/Credit amount</FormLabel>
                   <TextField
                     id="amount"
@@ -258,9 +258,9 @@ const TransactionNote: React.FC<Props> = ({
                     value={newTransactionNotes.amount || ""}
                     onChange={(event) => handleChange(event, "float")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="type">Type</FormLabel>
                   <Select
                     id="type"
@@ -282,9 +282,9 @@ const TransactionNote: React.FC<Props> = ({
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={3}>
+                <Grid size={3}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -307,9 +307,9 @@ const TransactionNote: React.FC<Props> = ({
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={3}>
+                <Grid size={3}>
                   <FormLabel htmlFor="rate"> Exchange Rate</FormLabel>
                   <TextField
                     id="rate"
@@ -324,8 +324,8 @@ const TransactionNote: React.FC<Props> = ({
                     value={newTransactionNotes.rate || ""}
                     onChange={(event) => handleChange(event, "float")}
                   />
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

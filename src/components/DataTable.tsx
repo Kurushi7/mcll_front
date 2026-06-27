@@ -8,29 +8,25 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import {
   DataGrid,
-  GridCallbackDetails,
   GridColDef,
   GridColumnVisibilityModel,
   GridFilterListIcon,
   GridPaginationModel,
-  GridSortItem,
   GridSortModel,
 } from "@mui/x-data-grid";
 import {
   Alert,
   Box,
   Button,
-  Grid2,
+  Grid,
   Paper,
   Snackbar,
   SnackbarCloseReason,
 } from "@mui/material";
 import FilterPanelPopUp from "./dataTable/FilterPanelPopUp";
-import Popover from "@mui/material/Popover";
 
 interface Request {
   columns: Column[];
-  redirectTo: string;
   handleFetchData: (filter: ListFilter) => Promise<any>;
   primaryKey: string;
   buttonList: ButtonList[];
@@ -41,7 +37,6 @@ interface Request {
 
 const DataTable: React.FC<Request> = ({
   columns,
-  redirectTo,
   handleFetchData,
   primaryKey,
   buttonList,
@@ -74,7 +69,7 @@ const DataTable: React.FC<Request> = ({
   const [filterData, setFilterData] = React.useState<any[]>([]);
   const isFirstRender = useRef(true);
 
-  const [gridColumns, setGridColumns] = useState<GridColDef[]>([]);
+  const [GridColumns, setGridColumns] = useState<GridColDef[]>([]);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [snackMessage, setSnackMessage] = React.useState<{
     message: string;
@@ -83,7 +78,7 @@ const DataTable: React.FC<Request> = ({
     message: "",
     severity: "success",
   });
-  const [sortModel, setSortModel] = React.useState<GridSortItem[]>([
+  const [sortModel, _setSortModel] = React.useState<GridSortModel>([
     { field: `${primaryKey}`, sort: "asc" },
   ]);
 
@@ -124,7 +119,7 @@ const DataTable: React.FC<Request> = ({
   };
 
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -219,8 +214,7 @@ const DataTable: React.FC<Request> = ({
   }, []);
 
   const handleSortUpdate = async (
-    model: GridSortModel,
-    details: GridCallbackDetails,
+    model: GridSortModel
   ) => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -248,7 +242,7 @@ const DataTable: React.FC<Request> = ({
   return (
     <Paper sx={{ width: "100%" }}>
       <Box sx={{ padding: "0 16px" }}>
-        <Box display="flex" justifyContent="flex-end" mb={4}>
+        <Box sx={{display:"flex", justifyContent: "flex-end", mb:4}}>
           {buttonList &&
             buttonList.map((button) => (
               <Button
@@ -262,8 +256,8 @@ const DataTable: React.FC<Request> = ({
             ))}
         </Box>
 
-        <Grid2 container>
-          <Grid2 size={12}>
+        <Grid container>
+          <Grid size={12}>
             <div style={{ display: "flex", gap: "8px", padding: "4px" }}>
               <Button
                 variant="outlined"
@@ -273,11 +267,11 @@ const DataTable: React.FC<Request> = ({
                 Filters
               </Button>
             </div>
-          </Grid2>
-          <Grid2 size={12}>
+          </Grid>
+          <Grid size={12}>
             <DataGrid
               rows={data}
-              columns={gridColumns}
+              columns={GridColumns}
               loading={loading}
               rowCount={total}
               paginationMode="server"
@@ -292,8 +286,8 @@ const DataTable: React.FC<Request> = ({
               getRowId={(row) => row[primaryKey]}
               sortingMode="server"
               sortModel={sortModel}
-              onSortModelChange={(model, details) =>
-                handleSortUpdate(model, details)
+              onSortModelChange={(model) =>
+                handleSortUpdate(model)
               }
               disableColumnFilter={true}
               processRowUpdate={handleProcessRowUpdate}
@@ -303,8 +297,8 @@ const DataTable: React.FC<Request> = ({
               autoHideDuration={5000}
               message={error}
             />
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
       </Box>
       {open && (
         <FilterPanelPopUp

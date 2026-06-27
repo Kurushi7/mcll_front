@@ -9,7 +9,7 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
-  Grid2,
+  Grid,
   Link,
   Paper,
   Stack,
@@ -165,14 +165,14 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <Grid2
+    <Grid
       container
       justifyContent="center"
       alignItems="center"
       spacing={2}
       sx={{ height: "100vh" }}
     >
-      <Grid2
+      <Grid
         sx={{
           xs: "100%",
           sm: "75%",
@@ -315,8 +315,8 @@ export const Login: React.FC = () => {
             </Card>
           </SignInContainer>
         </ThemeProvider>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   );
 };
 

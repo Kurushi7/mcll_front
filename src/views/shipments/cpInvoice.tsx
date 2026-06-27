@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent, CardHeader, Grid2 } from "@mui/material";
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import InvoiceList from "./invoiceList";
 import CardTitle from "../../components/global/Card/CardTitle";
 
@@ -12,9 +12,9 @@ const CpInvoice: React.FC<Props> = ({ shipmentId }) => {
     <div style={{ backgroundColor: "hsl(0deg 0% 100%)", padding: "16px" }}>
       <CardTitle>Cp invoice</CardTitle>
       <div style={{ paddingTop: "16px", paddingLeft: "16px" }}>
-        <Grid2 container size={12}>
+        <Grid container size={12}>
           <InvoiceList type="cp" shipmentId={shipmentId} />
-        </Grid2>
+        </Grid>
       </div>
     </div>
   );

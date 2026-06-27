@@ -349,7 +349,6 @@ const ProcurementList: React.FC<ProcurementProps> = ({ parentPersonId }) => {
     <>
       <DataTable
         columns={columns}
-        redirectTo="/procurement"
         handleFetchData={handleFetchData}
         primaryKey="person_id"
         buttonList={actions}

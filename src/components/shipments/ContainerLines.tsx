@@ -432,7 +432,6 @@ const ContainerLines: React.FC<Props> = ({
     <ThemeProvider theme={customTheme}>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="container_line_id"
         buttonList={actions}

@@ -7,7 +7,7 @@ import {
   CardContent,
   CardHeader,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   Snackbar,
@@ -17,7 +17,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { FilterItem, ListFilter } from "../../types/table";
 import ListConstants from "../../composables/constants/table";
-import { GridSortItem } from "@mui/x-data-grid";
+import { GridSortModel } from "@mui/x-data-grid";
 import {
   PortModel,
   Vessels,
@@ -43,14 +43,14 @@ import {
   getShipment,
   updateShipment,
 } from "../../composables/shippings/Shipments";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AxiosResponse } from "axios";
 import InvoiceList from "./invoiceList";
 import ContainerLines from "../../components/shipments/ContainerLines";
 
 const ShipmentInfo = () => {
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
-  const [allPersonList, setAllPersonList] = React.useState<PersonCountry[]>([]);
+  const [_allPersonList, setAllPersonList] = React.useState<PersonCountry[]>([]);
   const [linerOptions, setLinerOptions] = React.useState<LinersModel[]>([]);
   const [portOfLoadingList, setPortOfLoadingList] = React.useState<PortModel[]>(
     [],
@@ -63,7 +63,7 @@ const ShipmentInfo = () => {
   const [shipmentId, setShipmentId] = React.useState<number>();
   const navigate = useNavigate();
 
-  const [shipmentVessels, setShippingVessels] = React.useState<
+  const [_shipmentVessels, setShippingVessels] = React.useState<
     ShipmentVesselsModel[] | undefined | null
   >([]);
   const [supplierList, setSupplierList] = React.useState<PersonCountry[]>([]);
@@ -105,7 +105,7 @@ const ShipmentInfo = () => {
   const [reloadContainerLines, setReloadContainerLines] =
     useState<boolean>(false);
 
-  const [errors, setErrors] = useState<Record<string, any>>({
+  const [errors, _setErrors] = useState<Record<string, any>>({
     hbl_no: 0,
     shipper_id: "",
     consignee_id: "",
@@ -128,7 +128,7 @@ const ShipmentInfo = () => {
       },
     ];
 
-    const sortItem: GridSortItem[] = [
+    const sortItem: GridSortModel = [
       {
         field: "port_id",
         sort: "desc",
@@ -157,7 +157,7 @@ const ShipmentInfo = () => {
   const getPortsListDebounced = async (
     event: any,
     type: string,
-    newInputValue: any,
+    _newInputValue: any,
     reason: string,
   ) => {
     if (!event) return;
@@ -207,7 +207,7 @@ const ShipmentInfo = () => {
   };
 
   const getLinerOptions = async () => {
-    const sortItem: GridSortItem[] = [
+    const sortItem: GridSortModel = [
       {
         field: "liner_id",
         sort: "desc",
@@ -270,7 +270,7 @@ const ShipmentInfo = () => {
       filter.filter.push(filterItem);
     }
 
-    const sortItem: GridSortItem[] = [
+    const sortItem: GridSortModel = [
       {
         field: "shipment_id",
         sort: "desc",
@@ -310,7 +310,7 @@ const ShipmentInfo = () => {
   };
 
   const handleAutoCompleteChange = async (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: any,
     field: string,
   ) => {
@@ -381,7 +381,7 @@ const ShipmentInfo = () => {
   };
 
   const handleClose = (
-    event: React.SyntheticEvent<any> | Event,
+    _event: React.SyntheticEvent<any> | Event,
     reason?: string,
   ) => {
     if (reason === "clickaway") {
@@ -473,8 +473,8 @@ const ShipmentInfo = () => {
       >
         <CardHeader title="Fill shipping info" />
         <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-          <Grid2 container spacing={1} size={12}>
-            <Grid2 size={3}>
+          <Grid container spacing={1} size={12}>
+            <Grid size={3}>
               <FormLabel htmlFor="master_bl_ref">Master BL</FormLabel>
               <TextField
                 id="master_bl_ref"
@@ -487,14 +487,14 @@ const ShipmentInfo = () => {
                 helperText={errors.master_bl_ref || ""}
                 value={newShipment.master_bl_ref}
                 onChange={handleChange}
-                InputProps={{
-                  inputProps: {
+                slotProps={{
+                  htmlInput: {
                     maxLength: 20,
                   },
                 }}
               />
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="liner_id">Liner</FormLabel>
               {linerOptions && linerOptions.length > 0 && (
                 <Select
@@ -520,8 +520,8 @@ const ShipmentInfo = () => {
                     })}
                 </Select>
               )}
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="consignee">Consignee</FormLabel>
               <Autocomplete
                 id="consignee"
@@ -543,10 +543,10 @@ const ShipmentInfo = () => {
                   handleAutoCompleteChange(event, newValue, "consignee")
                 }
               />
-            </Grid2>
-            <Grid2 size={3} />
+            </Grid>
+            <Grid size={3} />
 
-            <Grid2 size={3}>
+            <Grid size={3}>
               <FormLabel htmlFor="notify_party1">Notify party 1</FormLabel>
               <Autocomplete
                 id="notify_party1"
@@ -568,8 +568,8 @@ const ShipmentInfo = () => {
                   handleAutoCompleteChange(event, newValue, "notify_party1")
                 }
               />
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="notify_party2">Notify party 2</FormLabel>
               <Autocomplete
                 id="notify_party2"
@@ -591,8 +591,8 @@ const ShipmentInfo = () => {
                   handleAutoCompleteChange(event, newValue, "notify_party2")
                 }
               />
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="shipper">Shipper</FormLabel>
               <Autocomplete
                 id="shipper"
@@ -614,10 +614,10 @@ const ShipmentInfo = () => {
                   handleAutoCompleteChange(event, newValue, "shipper")
                 }
               />
-            </Grid2>
-            <Grid2 size={3} />
+            </Grid>
+            <Grid size={3} />
 
-            <Grid2 size={3}>
+            <Grid size={3}>
               <FormLabel htmlFor="port_of_loading">Port of loading</FormLabel>
               <Autocomplete
                 id="port_of_loading"
@@ -640,8 +640,8 @@ const ShipmentInfo = () => {
                   getPortsListDebounced(event, "loading", newInputValue, reason)
                 }
               />
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="port_of_unloading">
                 Port of unloading
               </FormLabel>
@@ -671,10 +671,10 @@ const ShipmentInfo = () => {
                   )
                 }
               />
-            </Grid2>
-            <Grid2 size={6} />
+            </Grid>
+            <Grid size={6} />
 
-            <Grid2 size={3}>
+            <Grid size={3}>
               <FormLabel htmlFor="eta">Eta</FormLabel>
               <TextField
                 id="eta"
@@ -689,8 +689,8 @@ const ShipmentInfo = () => {
                 value={newShipment.eta}
                 onChange={handleChange}
               />
-            </Grid2>
-            <Grid2 size={3}>
+            </Grid>
+            <Grid size={3}>
               <FormLabel htmlFor="etd">Etd</FormLabel>
               <TextField
                 id="etd"
@@ -705,10 +705,10 @@ const ShipmentInfo = () => {
                 value={newShipment.etd}
                 onChange={handleChange}
               />
-            </Grid2>
-            <Grid2 size={6} />
+            </Grid>
+            <Grid size={6} />
 
-            <Grid2 size={8}>
+            <Grid size={8}>
               <FormLabel htmlFor="remarks">Remarks</FormLabel>
               <TextField
                 id="remarks"
@@ -718,26 +718,26 @@ const ShipmentInfo = () => {
                 value={newShipment.remarks}
                 onChange={handleChange}
               />
-            </Grid2>
+            </Grid>
 
-            <Grid2 size={10} sx={{ pt: 2, mb: 2 }}>
+            <Grid size={10} sx={{ pt: 2, mb: 2 }}>
               {(showContinue || (shipmentId && shipmentId > 0)) && (
                 <ShipmentVessels
                   vesselOptions={vesselOptions}
                   shipmentId={shipmentId ?? 0}
                 />
               )}
-            </Grid2>
-            <Grid2 size={2} />
+            </Grid>
+            <Grid size={2} />
 
-            <Grid2 size={10} sx={{ pt: 2, mb: 2 }}>
+            <Grid size={10} sx={{ pt: 2, mb: 2 }}>
               {(showContinue || (shipmentId && shipmentId > 0)) && (
                 <InvoiceList type="liner" shipmentId={shipmentId} />
               )}
-            </Grid2>
-            <Grid2 size={2} />
+            </Grid>
+            <Grid size={2} />
 
-            <Grid2 size={10} sx={{ pt: 2, mb: 3 }}>
+            <Grid size={10} sx={{ pt: 2, mb: 3 }}>
               {(showContinue || shipmentId) && (
                 <ContainerLines
                   shipmentId={shipmentId}
@@ -745,11 +745,11 @@ const ShipmentInfo = () => {
                   setReloadData={setReloadContainerLines}
                 />
               )}
-            </Grid2>
-            <Grid2 size={2} />
+            </Grid>
+            <Grid size={2} />
 
-            <Grid2 size={10} />
-          </Grid2>
+            <Grid size={10} />
+          </Grid>
         </CardContent>
         <CardActions
           style={{
@@ -758,7 +758,7 @@ const ShipmentInfo = () => {
             paddingTop: "8px",
           }}
         >
-          <Grid2>
+          <Grid>
             {(showContinue || shipmentId) && (
               <Button type="submit" onClick={continueToHbls}>
                 Continue
@@ -768,7 +768,7 @@ const ShipmentInfo = () => {
             <Button type="submit" onClick={executeSaveMbl}>
               Save
             </Button>
-          </Grid2>
+          </Grid>
         </CardActions>
       </Card>
       {openSnackBar && (

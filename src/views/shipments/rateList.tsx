@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { ButtonList, Column, ListFilter } from "../../types/table";
 import ListConstants from "../../composables/constants/table";
 import {
@@ -9,7 +9,7 @@ import {
   CardContent,
   CardHeader,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -124,7 +124,7 @@ const RateList = () => {
       setAnchorEl(null);
     };
 
-    const handleAction = async (selectedAction: string, event: any) => {
+    const handleAction = async (selectedAction: string ) => {
       handleMenuClose();
       if (selectedAction === "edit") {
         await fetchRate(row.rate_id);
@@ -156,7 +156,7 @@ const RateList = () => {
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(event) => handleAction("edit", event)}>
+          <MenuItem onClick={() => handleAction("edit")}>
             Edit
           </MenuItem>
         </Menu>
@@ -319,7 +319,7 @@ const RateList = () => {
   };
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -353,7 +353,7 @@ const RateList = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <PopupState variant="popover" popupId="demo-popup-popover">
-        {(popupState) => (
+        {() => (
           <div>
             <Popover
               open={openAnchor}
@@ -377,8 +377,8 @@ const RateList = () => {
               >
                 <CardHeader title="Add new rate" />
                 <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-                  <Grid2 container size={12} spacing={1}>
-                    <Grid2 size={6}>
+                  <Grid container size={12} spacing={1}>
+                    <Grid size={6}>
                       <FormLabel id="currency">Currency</FormLabel>
                       <Select
                         id="currency"
@@ -401,9 +401,9 @@ const RateList = () => {
                             );
                           })}
                       </Select>
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={6}>
+                    <Grid size={6}>
                       <FormLabel htmlFor="rate">Rate</FormLabel>
                       <TextField
                         id="rate"
@@ -419,9 +419,9 @@ const RateList = () => {
                         value={rates.rate}
                         onChange={(event) => handleChange(event, "float")}
                       />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={6}>
+                    <Grid size={6}>
                       <FormLabel htmlFor="date">Date</FormLabel>
                       {rates.date}
                       <TextField
@@ -437,8 +437,8 @@ const RateList = () => {
                         value={rates.date}
                         onChange={(event) => handleChange(event, "string")}
                       />
-                    </Grid2>
-                  </Grid2>
+                    </Grid>
+                  </Grid>
                 </CardContent>
                 <CardActions
                   style={{
@@ -447,12 +447,12 @@ const RateList = () => {
                     paddingTop: "8px",
                   }}
                 >
-                  <Grid2>
+                  <Grid>
                     <Button type="submit" onClick={handleAddRate}>
                       Save Vessel
                     </Button>
                     <Button onClick={() => handlePopOverClose()}>Close</Button>
-                  </Grid2>
+                  </Grid>
                 </CardActions>
               </Card>
             </Popover>
@@ -461,7 +461,6 @@ const RateList = () => {
       </PopupState>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="rate_id"
         buttonList={actions}

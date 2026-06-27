@@ -1,4 +1,4 @@
-import { Button, FormControl, Grid2, MenuItem, Select } from "@mui/material";
+import { Button, FormControl, Grid, MenuItem, Select } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Column, FilterItems, Operator } from "../../types/table";
@@ -215,17 +215,17 @@ const FilterPanel: React.FC<Props> = ({
   return (
     <div style={formStyle}>
       <div style={{ flex: 1, padding: "8px" }}>
-        <Grid2 container spacing={1}>
-          {data.length > 1 && <Grid2 size={1} />}
-          <Grid2 size={2} />
-          <Grid2 size={data.length > 1 ? 3 : 3}>Column</Grid2>
-          <Grid2 size={data.length > 1 ? 3 : 3}>Operator</Grid2>
-          <Grid2 size={data.length > 1 ? 3 : 4}>Value</Grid2>
-        </Grid2>
+        <Grid container spacing={1}>
+          {data.length > 1 && <Grid size={1} />}
+          <Grid size={2} />
+          <Grid size={data.length > 1 ? 3 : 3}>Column</Grid>
+          <Grid size={data.length > 1 ? 3 : 3}>Operator</Grid>
+          <Grid size={data.length > 1 ? 3 : 4}>Value</Grid>
+        </Grid>
         {data.map((row, index) => (
-          <Grid2 key={index} container spacing={1} style={{ padding: "2px" }}>
+          <Grid key={index} container spacing={1} style={{ padding: "2px" }}>
             {data.length > 1 && (
-              <Grid2 size={1}>
+              <Grid size={1}>
                 {data.length > 1 && (
                   <div style={closeButtonDiv}>
                     <Button
@@ -236,10 +236,10 @@ const FilterPanel: React.FC<Props> = ({
                     </Button>
                   </div>
                 )}
-              </Grid2>
+              </Grid>
             )}
 
-            <Grid2 size={2}>
+            <Grid size={2}>
               <FormControl>
                 {data.length > 1 && index > 0 && (
                   <Select
@@ -259,9 +259,9 @@ const FilterPanel: React.FC<Props> = ({
                   </Select>
                 )}
               </FormControl>
-            </Grid2>
+            </Grid>
 
-            <Grid2 size={data.length > 1 ? 3 : 3} sx={{ flex: 1 }}>
+            <Grid size={data.length > 1 ? 3 : 3} sx={{ flex: 1 }}>
               <FormControl fullWidth={true}>
                 <Select
                   size="small"
@@ -279,8 +279,8 @@ const FilterPanel: React.FC<Props> = ({
                   ))}
                 </Select>
               </FormControl>
-            </Grid2>
-            <Grid2 size={data.length > 1 ? 3 : 3}>
+            </Grid>
+            <Grid size={data.length > 1 ? 3 : 3}>
               <FormControl fullWidth={true}>
                 <Select
                   size="small"
@@ -303,8 +303,8 @@ const FilterPanel: React.FC<Props> = ({
                   )}
                 </Select>
               </FormControl>
-            </Grid2>
-            <Grid2 size={data.length > 1 ? 3 : 4}>
+            </Grid>
+            <Grid size={data.length > 1 ? 3 : 4}>
               <FormControl>
                 <FilterFieldRenderer
                   type={row.component ?? "text"}
@@ -318,8 +318,8 @@ const FilterPanel: React.FC<Props> = ({
                   }
                 />
               </FormControl>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         ))}
       </div>
       <div

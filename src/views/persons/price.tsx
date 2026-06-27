@@ -14,7 +14,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -262,8 +262,8 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
               }}
             />
             <CardContent sx={{ paddingTop: "16px" }}>
-              <Grid2 container spacing={1} offset={1} size={8}>
-                <Grid2 size={12}>
+              <Grid container spacing={1} offset={1} size={8}>
+                <Grid size={12}>
                   <FormLabel htmlFor="From">From</FormLabel>
                   <TextField
                     id="from"
@@ -285,9 +285,9 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                   <FormLabel htmlFor="To">To</FormLabel>
                   <TextField
                     id="to"
@@ -309,9 +309,9 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                   <FormControl fullWidth error={!!errors.product_id}>
                     <FormLabel id="product_id">Name</FormLabel>
                     <Select
@@ -340,9 +340,9 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                     </Select>
                     <FormHelperText>{errors.product_id}</FormHelperText>
                   </FormControl>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                   <FormLabel htmlFor="Price">Price</FormLabel>
                   <TextField
                     id="price"
@@ -363,8 +363,8 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                       });
                     }}
                   />
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

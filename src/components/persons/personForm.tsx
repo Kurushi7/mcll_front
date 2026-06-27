@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   FormLabel,
-  Grid2,
+  Grid,
   TextField,
   Typography,
 } from "@mui/material";
@@ -266,8 +266,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
           <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
             {/*Persons form*/}
 
-            <Grid2 container spacing={1} size={10}>
-              <Grid2 size={6}>
+            <Grid container spacing={1} size={10}>
+              <Grid size={6}>
                 <FormLabel htmlFor="first_name">First name</FormLabel>
                 <TextField
                   id="first_name"
@@ -287,9 +287,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="Last name">Last name</FormLabel>
                 <TextField
                   id="last_name"
@@ -308,9 +308,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={12}>
+              <Grid size={12}>
                 <FormLabel htmlFor="addressLine1">Address line 1</FormLabel>
                 <TextField
                   id="address_line1"
@@ -334,9 +334,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={12}>
+              <Grid size={12}>
                 <FormLabel htmlFor="addressLine2">Address line 2</FormLabel>
                 <TextField
                   id="address_line2"
@@ -357,9 +357,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="city">City</FormLabel>
                 <TextField
                   id="city"
@@ -380,9 +380,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="country">Country</FormLabel>
                 <Autocomplete
                   options={countries}
@@ -399,9 +399,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     />
                   )}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="phone1">Phone 1</FormLabel>
                 <TextField
                   id="phone1"
@@ -423,9 +423,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="phone2">Phone 2</FormLabel>
                 <TextField
                   id="phone2"
@@ -445,9 +445,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="watsapp_no">Watsapp no</FormLabel>
                 <TextField
                   id="watsapp_no"
@@ -467,9 +467,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="fax">Fax</FormLabel>
                 <TextField
                   id="fax"
@@ -489,9 +489,9 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-              </Grid2>
+              </Grid>
 
-              <Grid2 size={6}>
+              <Grid size={6}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <TextField
                   id="email"
@@ -512,13 +512,13 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                     },
                   }}
                 />
-                <Grid2 />
-              </Grid2>
+                <Grid />
+              </Grid>
 
-              {personType === "supplier" && <Grid2 size={6}></Grid2>}
+              {personType === "supplier" && <Grid size={6}></Grid>}
 
               {portOptions && portOptions.length !== 0 && (
-                <Grid2 size={12}>
+                <Grid size={12}>
                   <Autocomplete
                     multiple
                     options={portOptions}
@@ -534,10 +534,10 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                       />
                     )}
                   />
-                </Grid2>
+                </Grid>
               )}
 
-              <Grid2 size={6}></Grid2>
+              <Grid size={6}></Grid>
 
               {showActions && (
                 <CardActions
@@ -557,7 +557,7 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   </Button>
                 </CardActions>
               )}
-            </Grid2>
+            </Grid>
           </CardContent>
         </Card>
       </>

@@ -14,7 +14,7 @@ import {
   DialogTitle,
   FormControl,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   InputLabel,
   Menu,
@@ -697,8 +697,8 @@ const FreightQuoteStagingList = () => {
           >
             <CardHeader title="Add/edit manifest staging" />
             <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-              <Grid2 container spacing={1} size={12}>
-                <Grid2 size={6}>
+              <Grid container spacing={1} size={12}>
+                <Grid size={6}>
                   <FormLabel htmlFor="valid_from">Valid from</FormLabel>
                   <TextField
                     id="valid_from"
@@ -713,9 +713,9 @@ const FreightQuoteStagingList = () => {
                     value={manifestStaging.valid_from}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="valid_to">Valid to</FormLabel>
                   <TextField
                     id="valid_to"
@@ -730,9 +730,9 @@ const FreightQuoteStagingList = () => {
                     value={manifestStaging.valid_to}
                     onChange={(event) => handleChange(event, "string")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <InputLabel htmlFor="liner_id">Liner name</InputLabel>
                   <FormControl variant="outlined" style={{ width: "100%" }}>
                     <Select
@@ -755,9 +755,9 @@ const FreightQuoteStagingList = () => {
                         })}
                     </Select>
                   </FormControl>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="size">Size</FormLabel>
                   <Select
                     id="size"
@@ -780,9 +780,9 @@ const FreightQuoteStagingList = () => {
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="Rate">Price</FormLabel>
                   <TextField
                     id="price"
@@ -803,9 +803,9 @@ const FreightQuoteStagingList = () => {
                       });
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="port_of_trans_shipment">
                     Port of destination
                   </FormLabel>
@@ -830,9 +830,9 @@ const FreightQuoteStagingList = () => {
                       getPorts(event, reason)
                     }
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="port_of_destinaton">
                     Port of destination
                   </FormLabel>
@@ -857,9 +857,9 @@ const FreightQuoteStagingList = () => {
                       getPorts(event, reason)
                     }
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -882,9 +882,9 @@ const FreightQuoteStagingList = () => {
                         );
                       })}
                   </Select>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel id="third_party">Third parties</FormLabel>
                   <Select
                     id="third_party"
@@ -907,8 +907,8 @@ const FreightQuoteStagingList = () => {
                         );
                       })}
                   </Select>
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>
@@ -934,7 +934,6 @@ const FreightQuoteStagingList = () => {
 
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="staging_id"
         buttonList={actions}

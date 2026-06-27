@@ -10,7 +10,7 @@ import {
   CardHeader,
   FormControl,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   InputLabel,
   Menu,
@@ -378,8 +378,8 @@ const VesselList = () => {
               >
                 <CardHeader title="Add new vessel" />
                 <CardContent sx={{ paddingTop: "16px" }}>
-                  <Grid2 container size={12}>
-                    <Grid2 size={12}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
                       <FormLabel htmlFor="name">Vessel name</FormLabel>
                       <TextField
                         id="name"
@@ -399,9 +399,9 @@ const VesselList = () => {
                           },
                         }}
                       />
-                    </Grid2>
+                    </Grid>
 
-                    <Grid2 size={12}>
+                    <Grid size={12}>
                       <InputLabel htmlFor="liner_id">Liner name</InputLabel>
                       <FormControl variant="outlined" style={{ width: "100%" }}>
                         <Select
@@ -424,8 +424,8 @@ const VesselList = () => {
                             })}
                         </Select>
                       </FormControl>
-                    </Grid2>
-                  </Grid2>
+                    </Grid>
+                  </Grid>
                 </CardContent>
                 <CardActions
                   style={{
@@ -434,12 +434,12 @@ const VesselList = () => {
                     paddingTop: "8px",
                   }}
                 >
-                  <Grid2>
+                  <Grid>
                     <Button type="submit" onClick={handleAddVessel}>
                       Save Vessel
                     </Button>
                     <Button onClick={() => handlePopOverClose()}>Close</Button>
-                  </Grid2>
+                  </Grid>
                 </CardActions>
               </Card>
             </Popover>
@@ -448,7 +448,6 @@ const VesselList = () => {
       </PopupState>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="vessel_id"
         buttonList={actions}

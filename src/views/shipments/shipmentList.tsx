@@ -225,7 +225,6 @@ const InvoiceList = () => {
     <ThemeProvider theme={customTheme}>
       <DataTable
         columns={columns}
-        redirectTo=""
         handleFetchData={handleFetchData}
         primaryKey="shipment_id"
         buttonList={actions}

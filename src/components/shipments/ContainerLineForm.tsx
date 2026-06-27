@@ -12,7 +12,7 @@ import {
   DialogTitle,
   FormControl,
   FormLabel,
-  Grid2,
+  Grid,
   MenuItem,
   Select,
   Snackbar,
@@ -250,8 +250,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
               }}
             />
             <CardContent sx={{ paddingTop: "16px" }}>
-              <Grid2 container spacing={1} offset={1} size={12}>
-                <Grid2 size={4}>
+              <Grid container spacing={1} offset={1} size={12}>
+                <Grid size={4}>
                   <FormLabel htmlFor="container_no">Container no</FormLabel>
                   <TextField
                     id="container_no"
@@ -271,9 +271,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={4}>
+                <Grid size={4}>
                   <FormLabel htmlFor="seal_no">Seal no</FormLabel>
                   <TextField
                     id="seal_no"
@@ -293,9 +293,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={4}>
+                <Grid size={4}>
                   <FormLabel htmlFor="no_of_packages">No of packages</FormLabel>
                   <TextField
                     id="no_of_packages"
@@ -310,9 +310,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     value={newContainerLine.no_of_packages}
                     onChange={(event) => handleChange(event, "number")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={4}>
+                <Grid size={4}>
                   <FormLabel htmlFor="weight">Weight</FormLabel>
                   <TextField
                     id="weight"
@@ -327,9 +327,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     value={newContainerLine.weight}
                     onChange={(event) => handleChange(event, "float")}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={4}>
+                <Grid size={4}>
                   <FormLabel htmlFor="measurement">Measurement</FormLabel>
                   <TextField
                     id="measurement"
@@ -350,9 +350,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={4}>
+                <Grid size={4}>
                   <FormControl fullWidth error={!!errors.type}>
                     <FormLabel id="size">size</FormLabel>
                     <Select
@@ -376,9 +376,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                         })}
                     </Select>
                   </FormControl>
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="description">Description</FormLabel>
                   <TextField
                     id="description"
@@ -398,9 +398,9 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}>
+                <Grid size={6}>
                   <FormLabel htmlFor="marks_numbers">Marks & numbers</FormLabel>
                   <TextField
                     id="marks_numbers"
@@ -420,8 +420,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                       },
                     }}
                   />
-                </Grid2>
-              </Grid2>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

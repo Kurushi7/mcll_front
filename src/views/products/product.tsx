@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogTitle,
   FormLabel,
-  Grid2,
+  Grid,
   Slide,
   Snackbar,
   TextField,
@@ -179,8 +179,8 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
               }
             />
             <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-              <Grid2 container spacing={1} size={10}>
-                <Grid2 size={12}>
+              <Grid container spacing={1} size={10}>
+                <Grid size={12}>
                   <FormLabel htmlFor="name">Name</FormLabel>
                   <TextField
                     id="name"
@@ -200,9 +200,9 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={12}>
+                <Grid size={12}>
                   <FormLabel htmlFor="tags">Tags</FormLabel>
                   <TextField
                     id="tags"
@@ -222,10 +222,10 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
                       },
                     }}
                   />
-                </Grid2>
+                </Grid>
 
-                <Grid2 size={6}></Grid2>
-              </Grid2>
+                <Grid size={6}></Grid>
+              </Grid>
             </CardContent>
           </Card>
         </DialogContent>

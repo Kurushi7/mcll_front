@@ -13,7 +13,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Grid2,
+  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -451,8 +451,8 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
               >
                 <CardHeader title="Add new shipment vessel" />
                 <CardContent sx={{ paddingTop: "16px", paddingLeft: "16px" }}>
-                  <Grid2 container spacing={1} size={12}>
-                    <Grid2 size={10}>
+                  <Grid container spacing={1} size={12}>
+                    <Grid size={10}>
                       <FormLabel htmlFor="vessel">Vessel name</FormLabel>
                       <Autocomplete
                         id="vessel"
@@ -473,10 +473,10 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
                         }
                       />
                       {errors.vessel && <span>{errors.vessel}</span>}
-                    </Grid2>
-                    <Grid2 size={2} />
+                    </Grid>
+                    <Grid size={2} />
 
-                    <Grid2 size={10}>
+                    <Grid size={10}>
                       <FormLabel htmlFor="voyage_no">Voyage no</FormLabel>
                       <TextField
                         id="voyage_no"
@@ -495,10 +495,10 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
                           },
                         }}
                       />
-                    </Grid2>
-                    <Grid2 size={2} />
+                    </Grid>
+                    <Grid size={2} />
 
-                    <Grid2 size={10}>
+                    <Grid size={10}>
                       <FormControl fullWidth error={!!errors.type}>
                         <FormLabel id="type">Type</FormLabel>
                         <Select
@@ -525,9 +525,9 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
                         </Select>
                         <FormHelperText>{errors.type}</FormHelperText>
                       </FormControl>
-                    </Grid2>
-                    <Grid2 size={2} />
-                  </Grid2>
+                    </Grid>
+                    <Grid size={2} />
+                  </Grid>
                 </CardContent>
                 <CardActions
                   style={{
@@ -551,7 +551,6 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
       {shipmentId != 0 && (
         <DataTable
           columns={columns}
-          redirectTo=""
           handleFetchData={handleFetchData}
           primaryKey="shipment_vessel_id"
           buttonList={actions}
