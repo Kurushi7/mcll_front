@@ -6,6 +6,9 @@ import {
   PaginationState,
   useReactTable
 } from "@tanstack/react-table";
+import {getProcessFlowList} from "../../composables/processFlow/processFlow.tsx";
+import {ListFilter} from "../../types/table.ts";
+import {PipelineCell} from "../../components/processFlow/pipelineCell.tsx";
 
 export type StepStatus = 'complete' | 'correction' | 'pending';
 
@@ -15,53 +18,7 @@ export interface ProcessRow {
   steps: StepStatus[];
 }
 
-export interface StandardizedBackendParams {
-  page: number;
-  limit: number;
-  search: string;
-}
-
-export interface BackendResponse {
-  items: ProcessRow[];
-  totalCount: number;
-}
-
-const mockMyExistingBackendMethod = async (params: StandardizedBackendParams): Promise<BackendResponse> => {
-  console.log('API Request Dispatched with Parameters:', params);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        items: [
-          { id: '1', processId: 'Process X29', steps: ['complete', 'complete', 'correction', 'pending', 'pending'] },
-          { id: '2', processId: 'Process A14', steps: ['complete', 'pending', 'pending', 'pending', 'pending'] },
-          { id: '3', processId: 'Process Y88', steps: ['complete', 'complete', 'complete', 'complete', 'complete'] },
-          { id: '4', processId: 'Process Z02', steps: ['correction', 'pending', 'pending', 'pending', 'pending'] },
-        ],
-        totalCount: 42,
-      });
-    }, 300);
-  });
-};
-
-
 const ProcessLayout: React.FC<any>=() => {
-  const THEME: Record<StepStatus, { base: string; gradient: string; glow: string }> = {
-      complete: {
-        base: '#10b981',
-        gradient: 'linear-gradient(to bottom, #a7f3d0 0%, #10b981 40%, #047857 100%)',
-        glow: '0 2px 6px rgba(16, 185, 129, 0.2)',
-      },
-      correction: {
-        base: '#f97316',
-        gradient: 'linear-gradient(to bottom, #fed7aa 0%, #f97316 40%, #c2410c 100%)',
-        glow: '0 2px 6px rgba(249, 115, 22, 0.2)',
-      },
-      pending: {
-        base: '#2e3238',
-        gradient: 'linear-gradient(to bottom, #ffffff 0%, #f1f5f9 50%, #cbd5e1 100%)',
-        glow: 'none',
-      }
-    };
 
   const [data, setData] = useState<ProcessRow[]>([]);
   const [totalRows, setTotalRows] = useState<number>(0);
@@ -73,7 +30,7 @@ const ProcessLayout: React.FC<any>=() => {
     pageSize: 10,
   });
 
-  const handleSegmentClick = (rowId: string, stepIndex: number) => {
+  const handleSegmentClick = (rowId: string | number, stepIndex: number) => {
     setData((prev) => prev.map(row => {
       if (row.id === rowId) {
         const updatedSteps = [...row.steps];
@@ -86,72 +43,59 @@ const ProcessLayout: React.FC<any>=() => {
     }));
   }
 
-  const barContainer = {
-    display: 'flex',
-    width: '100%',
-    height: '22px',
-    backgroundColor: '#f1f5f9', // Dark carbon base
-    borderRadius: '6px',
-    padding: '3px',            // Inset frame border
-    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.8)',
-    overflow: 'hidden',
-    gap: '2px'                 // The structural capsule dividers
-  };
+    const pipelineConfigs = [
+        { accessor: 'shipment_id' as const, header: 'Shipment Id', hasWindow: false },
+        { accessor: 'client_identification' as const, header: 'Client Identification', hasWindow: false },
+        { accessor: 'booking_instructions' as const, header: 'Booking instruction', hasWindow: false },
+        { accessor: 'document_entries' as const, header: 'Document entries', hasWindow: true },
+        { accessor: 'tracking' as const, header: 'Tracking', hasWindow: false },
+        { accessor: 'custom_clearance' as const, header: 'Custom clearance', hasWindow: false },
+        { accessor: 'delivery_haulage' as const, header: 'Delivery & haulage', hasWindow: false },
+    ];
 
-  const columnHelper = createColumnHelper<ProcessRow>();
+  const handleOpenEntryWindow = (rId: string | number, idx: number, field: string ) => {
+    return {};
+  }
 
-  const columns = useMemo(() => [
-    columnHelper.accessor('processId', {
-      header: 'Process ID',
-    }),
-    columnHelper.accessor('steps', {
-      header: 'Workflow Pipeline Status',
-      cell: ({ row, getValue }) => {
-        const stepsArray = getValue();
-        const rowId = row.original.id;
 
-        return (
-          <div style={{ display: 'flex', width: '100%', height: '40px', alignItems: 'center' }}>
-            <div style={barContainer}>
-              {stepsArray.map((status: StepStatus, index: number) => {
-                const styleConfig = THEME[status];
+  const columnHelper = createColumnHelper<any>();
+
+  const columns = useMemo(() => {
+    const generatedColumns = pipelineConfigs.map(config =>
+        columnHelper.accessor(config.accessor, {
+            header: config.header,
+            cell: ({row, getValue}) => {
+                const stepsArray = getValue() as StepStatus[];
+                const rowId = row.original.id;
+
+                // Custom action selector based on configuration flags
+                const clickHandler = (rId: string | number, idx: number) => {
+                    if (config.hasWindow) {
+                        handleOpenEntryWindow(rId, idx, config.accessor); // Open input window
+                    } else {
+                        handleSegmentClick(rId, idx); // Default click action
+                    }
+                };
 
                 return (
-                  <div
-                    key={index}
-                    onClick={() => handleSegmentClick(rowId, index)}
-                    style={{
-                      flex: 1,
-                      background: styleConfig.gradient,
-                      borderRadius: '3px',
-                      cursor: 'pointer',
-                      boxShadow: `${styleConfig.glow}, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.4)`,
-                      position: 'relative',
-                      transition: 'all 0.15s ease',
-                    }}
-                    title="Step 1"
-                  >
-                    {status !== 'pending' && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '1px',
-                        left: '2px',
-                        right: '2px',
-                        height: '35%',
-                        background: 'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
-                        borderRadius: '2px',
-                        pointerEvents: 'none',
-                      }} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
-    })
-  ], []);
+                    <PipelineCell
+                        stepsArray={stepsArray}
+                        rowId={rowId}
+                        onSegmentClick={clickHandler}
+                    />
+                )
+            }
+        })
+         )
+
+            return [... generatedColumns];
+        }, [handleSegmentClick, handleOpenEntryWindow]);
+
+
+  const fetchShippingFlows = async (filter: ListFilter) => {
+      return await getProcessFlowList(filter);
+  }
+
 
   const table = useReactTable({
     data,
@@ -177,15 +121,16 @@ const ProcessLayout: React.FC<any>=() => {
   }, [searchInput]);
 
   useEffect(() => {
-    const standardizedParams: StandardizedBackendParams = {
-      page: pageIndex + 1, // Map 0-index framework offset to 1-index corporate backend expectation
+    const standardizedParams: ListFilter = {
+      offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
       limit: pageSize,
-      search: debouncedSearch,
+      filter: [],
+        sort: [],
     };
-    mockMyExistingBackendMethod(standardizedParams)
-      .then((response: BackendResponse) => {
-        setData(response.items);
-        setTotalRows(response.totalCount);
+      fetchShippingFlows(standardizedParams)
+      .then((response: any) => {
+        setData(response.data.data);
+        setTotalRows(response.total);
       })
       .catch((err) => console.error('Data layer connection failure', err));
   }, [pageIndex, pageSize, debouncedSearch]);

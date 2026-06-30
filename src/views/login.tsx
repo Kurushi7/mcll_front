@@ -167,10 +167,8 @@ export const Login: React.FC = () => {
   return (
     <Grid
       container
-      justifyContent="center"
-      alignItems="center"
       spacing={2}
-      sx={{ height: "100vh" }}
+      sx={{ height: "100vh", justifyContent: "center", alignItems: "center" }}
     >
       <Grid
         sx={{
@@ -182,7 +180,7 @@ export const Login: React.FC = () => {
       >
         <ThemeProvider theme={customTheme}>
           <CssBaseline enableColorScheme />
-          <SignInContainer direction="column" justifyContent="space-between">
+          <SignInContainer direction="column" sx= {{justifyContent: "space-between" }}>
             <Card elevation={3}>
               <McllIcon />
               <Typography

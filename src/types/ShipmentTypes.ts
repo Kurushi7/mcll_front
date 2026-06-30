@@ -1,4 +1,4 @@
-import { LinersModel, PortModel } from "./request";
+import { PortModel } from "./request";
 
 export interface PersonCountry {
   person_id: number;

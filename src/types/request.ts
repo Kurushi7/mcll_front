@@ -1,4 +1,3 @@
-import { PersonCountry } from "./ShipmentTypes";
 
 export interface PersonModel {
   person_id?: number;
