@@ -1,14 +1,25 @@
 import React from 'react';
 import {StepStatus} from "../../views/processFlow/processLayout.tsx";
 
+type StepField =
+    | "client_identification"
+    | "booking_instructions"
+    | "document_entries"
+    | "tracking"
+    | "custom_clearance"
+    | "delivery_haulage"
+    | "billing_debtors";
+
 interface PipelineCellProps {
-    stepsArray: StepStatus[];
-    rowId: string | number;
-    onSegmentClick?: (rowId: string | number, index: number) => void;
+    status: StepStatus;
+    rowId: number;
+    field: StepField;
+    stepFields: readonly StepField[];
+    onSegmentClick?: (rowId: number, field: string) => void;
 }
 
 export const PipelineCell: React.FC<PipelineCellProps> = (
-    {stepsArray, rowId, onSegmentClick}) => {
+    {status, rowId, field, stepFields, onSegmentClick}) => {
 
     const THEME: Record<StepStatus, { base: string; gradient: string; glow: string }> = {
         complete: {
@@ -28,58 +39,48 @@ export const PipelineCell: React.FC<PipelineCellProps> = (
         }
     };
 
+    const stepIndex = stepFields.indexOf(field);
 
-    const barContainer = {
-        display: 'flex',
-        width: '100%',
-        height: '22px',
-        backgroundColor: '#f1f5f9', // Dark carbon base
-        borderRadius: '6px',
-        padding: '3px',            // Inset frame border
-        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.8)',
-        overflow: 'hidden',
-        gap: '2px'                 // The structural capsule dividers
-    };
+    const isFirst = stepIndex === 0;
+    const isLast = stepIndex === stepFields.length - 1;
 
-    if (!Array.isArray(stepsArray)) return null;
+    const styleConfig = THEME[status];
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '40px', alignItems: 'center' }}>
-            <div style={barContainer}>
-                {stepsArray.map((status: StepStatus, index: number) => {
-                    const styleConfig = THEME[status];
+        <div
+            onClick={() => onSegmentClick?.(rowId, field)}
+            style={{
+                width: '100%',
+                height: '22px',
+                borderRadius: '3px',
+                cursor: onSegmentClick ? 'pointer' : 'default',
+                background: styleConfig.gradient,
+                boxShadow: `${styleConfig.glow}, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.4)`,
+                position: 'relative',
+                transition: 'all 0.15s ease',
 
-                    return (
-                        <div
-                            key={index}
-                            onClick={() => onSegmentClick?.(rowId, index)}
-                            style={{
-                                flex: 1,
-                                background: styleConfig.gradient,
-                                borderRadius: '3px',
-                                cursor: onSegmentClick ? 'pointer' : 'default',
-                                boxShadow: `${styleConfig.glow}, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.4)`,
-                                position: 'relative',
-                                transition: 'all 0.15s ease',
-                            }}
-                            title={`Step ${index + 1}`}
-                        >
-                            {status !== 'pending' && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '1px',
-                                    left: '2px',
-                                    right: '2px',
-                                    height: '35%',
-                                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
-                                    borderRadius: '2px',
-                                    pointerEvents: 'none',
-                                }} />
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
+                borderTopLeftRadius: isFirst ? 6 : 0,
+                borderBottomLeftRadius: isFirst ? 6 : 0,
+                borderTopRightRadius: isLast ? 6 : 0,
+                borderBottomRightRadius: isLast ? 6 : 0,
+            }}
+            title={field}
+        >
+            {status !== 'pending' && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '1px',
+                        left: '2px',
+                        right: '2px',
+                        height: '35%',
+                        background:
+                            'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
+                        borderRadius: '2px',
+                        pointerEvents: 'none',
+                    }}
+                />
+            )}
         </div>
     );
 };

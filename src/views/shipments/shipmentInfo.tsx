@@ -23,7 +23,7 @@ import {
   Vessels,
   ShipmentVesselsModel,
   LinersModel,
-  ShipmentModel,
+  ShipmentModel, ShipmentProcessModel,
 } from "../../types/request";
 import { getPortList } from "../../composables/persons/Ports";
 import {
@@ -47,6 +47,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AxiosResponse } from "axios";
 import InvoiceList from "./invoiceList";
 import ContainerLines from "../../components/shipments/ContainerLines";
+import {addShipmentProcess} from "../../composables/processFlow/processFlow.tsx";
 
 const ShipmentInfo = () => {
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
@@ -331,6 +332,32 @@ const ShipmentInfo = () => {
     navigate(`/hbl/${shipmentId}`);
   };
 
+  const saveShipmentProcess= async (shipmentId: number) => {
+    const ShipmentFlow: ShipmentProcessModel = {
+      shipment_id: shipmentId,
+      client_identification: "pending",
+      booking_instructions: "pending",
+      document_entries: "pending",
+      tracking: "pending",
+      custom_clearance: "pending",
+      delivery_haulage: "pending",
+      billing_debtors: "pending",
+      documents: ""
+    }
+
+    const result = await addShipmentProcess(ShipmentFlow);
+    if (!result) return;
+
+    if (result.status && result.status !== 200) {
+      setSnackMessage({
+        message: "Problem saving shipment process",
+        severity: "error",
+      });
+      setOpenSnackBar(true);
+      return;
+    }
+  }
+
   const executeSaveMbl = async () => {
     const shipmentModel: ShipmentModel = {
       consignee_id: newShipment.consignee?.person_id ?? 0,
@@ -374,6 +401,8 @@ const ShipmentInfo = () => {
         return;
       }
       shipmentModel.shipment_id = result.data.data;
+
+      await saveShipmentProcess(result.data.data)
       setShipmentId(result.data.data);
     }
 

@@ -1,8 +1,8 @@
 import axios from "axios";
 import { ListFilter } from "../../types/table";
-import {ShipmentProcess} from "../../types/shipmentProcess.ts";
+import {ShipmentProcessModel} from "../../types/request.ts";
 
-export const getProcessFlowList = async (filter: ListFilter) => {
+export const getShipmentProcessList = async (filter: ListFilter) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/shipment-process-list`;
   const token = localStorage.getItem("jwtToken");
 
@@ -14,8 +14,8 @@ export const getProcessFlowList = async (filter: ListFilter) => {
   });
 };
 
-export const fetchProcessFlowById = async (processFlowId: number) => {
-  const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/get-shipment-process/${processFlowId}`;
+export const fetchShipmentProcessById = async (shipmentProcessId: number) => {
+  const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/get-shipment-process/${shipmentProcessId}`;
   const token = localStorage.getItem("jwtToken");
 
   return await axios.get(url, {
@@ -26,7 +26,7 @@ export const fetchProcessFlowById = async (processFlowId: number) => {
   });
 };
 
-export const addProcessFlow = async (shipmentProcess: ShipmentProcess) => {
+export const addShipmentProcess = async (shipmentProcess: ShipmentProcessModel) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/add-shipment-process`;
   const token = localStorage.getItem("jwtToken");
 
@@ -38,11 +38,11 @@ export const addProcessFlow = async (shipmentProcess: ShipmentProcess) => {
   });
 };
 
-export const updateShipmentProcess = async (shipment: ShipmentProcess) => {
+export const updateShipmentProcess = async (shipmentProcess: ShipmentProcessModel) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/update-shipment-process`;
   const token = localStorage.getItem("jwtToken");
 
-  return await axios.post(url, shipment, {
+  return await axios.post(url, shipmentProcess, {
     headers: {
       "Content-type": "application/json",
       Authorization: `Bearer ${token}`,

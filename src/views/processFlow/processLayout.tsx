@@ -6,16 +6,25 @@ import {
   PaginationState,
   useReactTable
 } from "@tanstack/react-table";
-import {getProcessFlowList} from "../../composables/processFlow/processFlow.tsx";
+import {getShipmentProcessList} from "../../composables/processFlow/processFlow.tsx";
 import {ListFilter} from "../../types/table.ts";
 import {PipelineCell} from "../../components/processFlow/pipelineCell.tsx";
 
 export type StepStatus = 'complete' | 'correction' | 'pending';
 
-export interface ProcessRow {
-  id: string;
-  processId: string;
-  steps: StepStatus[];
+interface ProcessRow {
+    shipment_process_id: number;
+    shipment_id: number;
+
+    client_identification: StepStatus;
+    booking_instructions: StepStatus;
+    document_entries: StepStatus;
+    tracking: StepStatus;
+    custom_clearance: StepStatus;
+    delivery_haulage: StepStatus;
+    billing_debtors: StepStatus;
+
+    documents: string;
 }
 
 const ProcessLayout: React.FC<any>=() => {
@@ -30,27 +39,62 @@ const ProcessLayout: React.FC<any>=() => {
     pageSize: 10,
   });
 
-  const handleSegmentClick = (rowId: string | number, stepIndex: number) => {
-    setData((prev) => prev.map(row => {
-      if (row.id === rowId) {
-        const updatedSteps = [...row.steps];
-        const current = updatedSteps[stepIndex];
-        updatedSteps[stepIndex] = current === 'pending' ? 'complete'
-          : current === 'complete' ? 'correction' : 'pending';
-        return { ...row, steps: updatedSteps };
-      }
-      return row;
-    }));
-  }
+    const barContainer = {
+        display: 'flex',
+        width: '100%',
+        height: '22px',
+        backgroundColor: '#f1f5f9', // Dark carbon base
+        borderRadius: '6px',
+        padding: '3px',            // Inset frame border
+        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.8)',
+        overflow: 'hidden',
+        gap: '2px'                 // The structural capsule dividers
+    };
+
+    const stepFields = [
+        "client_identification",
+        "booking_instructions",
+        "document_entries",
+        "tracking",
+        "custom_clearance",
+        "delivery_haulage",
+        "billing_debtors",
+    ] as const;
+
+    type StepField = typeof stepFields[number];
+
+    const nextStatus = (status: StepStatus): StepStatus =>
+        status === "pending"
+            ? "complete"
+            : status === "complete"
+                ? "correction"
+                : "pending";
+
+    const handleSegmentClick = (
+        rowId: number,
+        field: (typeof stepFields)[number]
+    ) => {
+        setData((prev: ProcessRow[]) =>
+            prev.map((row) => {
+                if (row.shipment_process_id !== rowId) return row;
+
+                return {
+                    ...row,
+                    [field]: nextStatus(row[field]),
+                };
+            })
+        );
+    };
 
     const pipelineConfigs = [
-        { accessor: 'shipment_id' as const, header: 'Shipment Id', hasWindow: false },
-        { accessor: 'client_identification' as const, header: 'Client Identification', hasWindow: false },
-        { accessor: 'booking_instructions' as const, header: 'Booking instruction', hasWindow: false },
-        { accessor: 'document_entries' as const, header: 'Document entries', hasWindow: true },
-        { accessor: 'tracking' as const, header: 'Tracking', hasWindow: false },
-        { accessor: 'custom_clearance' as const, header: 'Custom clearance', hasWindow: false },
-        { accessor: 'delivery_haulage' as const, header: 'Delivery & haulage', hasWindow: false },
+        { accessor: 'shipment_process_id' as const, header: 'Id', hasWindow: false, hidden: true },
+        { accessor: 'shipment_id' as const, header: 'Shipment Id', hasWindow: false, hidden: false },
+        { accessor: 'client_identification' as const, header: 'Client Identification', hasWindow: false, hidden: false },
+        { accessor: 'booking_instructions' as const, header: 'Booking instruction', hasWindow: false, hidden: false },
+        { accessor: 'document_entries' as const, header: 'Document entries', hasWindow: true, hidden: false },
+        { accessor: 'tracking' as const, header: 'Tracking', hasWindow: false, hidden: false },
+        { accessor: 'custom_clearance' as const, header: 'Custom clearance', hasWindow: false, hidden: false },
+        { accessor: 'delivery_haulage' as const, header: 'Delivery & haulage', hasWindow: false, hidden: false },
     ];
 
   const handleOpenEntryWindow = (rId: string | number, idx: number, field: string ) => {
@@ -58,42 +102,51 @@ const ProcessLayout: React.FC<any>=() => {
   }
 
 
-  const columnHelper = createColumnHelper<any>();
+  const columnHelper = createColumnHelper<ProcessRow>();
 
-  const columns = useMemo(() => {
-    const generatedColumns = pipelineConfigs.map(config =>
-        columnHelper.accessor(config.accessor, {
-            header: config.header,
-            cell: ({row, getValue}) => {
-                const stepsArray = getValue() as StepStatus[];
-                const rowId = row.original.id;
+    const columns = useMemo(() => {
+        return pipelineConfigs
+            .filter((c) => !c.hidden)
+            .map((config, index) =>
+            columnHelper.accessor(config.accessor, {
+                header: config.header,
 
-                // Custom action selector based on configuration flags
-                const clickHandler = (rId: string | number, idx: number) => {
-                    if (config.hasWindow) {
-                        handleOpenEntryWindow(rId, idx, config.accessor); // Open input window
-                    } else {
-                        handleSegmentClick(rId, idx); // Default click action
+                cell: ({ row, getValue }) => {
+
+                    if (!stepFields.includes(config.accessor as StepField)) {
+                        return (
+                            <span style={{ padding: "0 8px", display: "inline-block" }}>
+                                {String(getValue())}
+                            </span>
+                        );
                     }
-                };
 
-                return (
-                    <PipelineCell
-                        stepsArray={stepsArray}
-                        rowId={rowId}
-                        onSegmentClick={clickHandler}
-                    />
-                )
-            }
-        })
-         )
+                    const status = getValue() as StepStatus;
+                    const rowId = row.original.shipment_process_id;
 
-            return [... generatedColumns];
-        }, [handleSegmentClick, handleOpenEntryWindow]);
+                    return (
+                        <PipelineCell
+                            status={status}
+                            rowId={rowId}
+                            field={config.accessor as StepField}
+                            stepFields={stepFields}
+                            onSegmentClick={(id: number, field: string) => {
+                                if (config.hasWindow) {
+                                    handleOpenEntryWindow(id, index, field);
+                                } else {
+                                    handleSegmentClick(id, field as StepField);
+                                }
+                            }}
+                        />
+                    );
+                },
+            })
+        );
+    }, [data]);
 
 
   const fetchShippingFlows = async (filter: ListFilter) => {
-      return await getProcessFlowList(filter);
+      return await getShipmentProcessList(filter);
   }
 
 
@@ -125,12 +178,12 @@ const ProcessLayout: React.FC<any>=() => {
       offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
       limit: pageSize,
       filter: [],
-        sort: [],
+      sort: [],
     };
       fetchShippingFlows(standardizedParams)
       .then((response: any) => {
-        setData(response.data.data);
-        setTotalRows(response.total);
+          setData(response.data.data);
+          setTotalRows(response.total);
       })
       .catch((err) => console.error('Data layer connection failure', err));
   }, [pageIndex, pageSize, debouncedSearch]);
@@ -193,7 +246,7 @@ const ProcessLayout: React.FC<any>=() => {
                     fontWeight: '700',
                     textTransform: 'uppercase',
                     color: '#475569',
-                    width: header.id === 'processId' ? '200px' : 'auto'
+                    width: header.id === 'shipment_process_id' ? '200px' : 'auto'
                   }}>
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
@@ -209,20 +262,15 @@ const ProcessLayout: React.FC<any>=() => {
                 </td>
               </tr>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id} style={{ borderBottom: '1px solid #f1f5f9', backgroundColor: '#ffffff' }}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} style={{
-                      padding: '14px 16px',
-                      fontSize: '14px',
-                      fontWeight: cell.column.id === 'processId' ? '600' : 'normal',
-                      color: cell.column.id === 'processId' ? '#f8fafc' : 'inherit'
-                    }}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))
+                table.getRowModel().rows.map((row) => (
+                    <tr key={row.id} style = {{ height: "42px" }}>
+                        {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id} style={{ padding: 0, verticalAlign: 'middle' }}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </td>
+                        ))}
+                    </tr>
+                ))
             )}
           </tbody>
         </table>

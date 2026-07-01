@@ -239,3 +239,16 @@ export interface FreightQuoteStagingFormModel {
   third_party: string;
   currency: string;
 }
+
+export interface ShipmentProcessModel{
+  shipment_process_id?: number;
+  shipment_id: number;
+  client_identification: string;
+  booking_instructions: string;
+  document_entries: string;
+  tracking: string;
+  custom_clearance: string;
+  delivery_haulage: string;
+  billing_debtors: string;
+  documents: string;
+}
