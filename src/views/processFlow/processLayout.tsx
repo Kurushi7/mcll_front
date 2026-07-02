@@ -6,16 +6,20 @@ import {
   PaginationState,
   useReactTable
 } from "@tanstack/react-table";
-import {getShipmentProcessList} from "../../composables/processFlow/processFlow.tsx";
+import {
+    addShipmentProcess,
+    getShipmentProcessList,
+    updateShipmentProcess
+} from "../../composables/processFlow/processFlow.tsx";
 import {ListFilter} from "../../types/table.ts";
-import {PipelineCell} from "../../components/processFlow/pipelineCell.tsx";
+import {PipelineCell, StepStatus} from "../../components/processFlow/pipelineCell.tsx";
+import DynamicFormOverlay, {ProcessStepType} from "./dynamicFormOverlay.tsx";
+import {ShipmentProcessModel} from "../../types/request.ts";
+import {Alert, Button, Snackbar} from "@mui/material";
 
-export type StepStatus = 'complete' | 'correction' | 'pending';
 
 interface ProcessRow {
     shipment_process_id: number;
-    shipment_id: number;
-
     client_identification: StepStatus;
     booking_instructions: StepStatus;
     document_entries: StepStatus;
@@ -23,9 +27,25 @@ interface ProcessRow {
     custom_clearance: StepStatus;
     delivery_haulage: StepStatus;
     billing_debtors: StepStatus;
-
     documents: string;
+    "client_id": number;
+    "client_name": string;
+    "booking_confirmation": boolean;
+    "booking_done": boolean;
+    "release_order": boolean;
+    "haulage_date": Date;
+    "cl_date": Date;
+    "document_date": Date;
+    "tracking_date": Date;
+    "clearance_date": Date;
 }
+
+const columnHelper = createColumnHelper<ProcessRow>();
+
+const stepFields = [
+    'client_identification', 'booking_instructions', 'document_entries',
+    'tracking', 'custom_clearance', 'delivery_haulage', 'billing_debtors'
+];
 
 const ProcessLayout: React.FC<any>=() => {
 
@@ -36,10 +56,8 @@ const ProcessLayout: React.FC<any>=() => {
 
     const [activePopover, setActivePopover] = useState<{
         rowId: number;
-        field: string;
-        status: string;
-        date: string;
-        rect: DOMRect;
+        columnId: ProcessStepType;
+        initialData: ProcessRow;
     } | null>(null);
 
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -47,44 +65,32 @@ const ProcessLayout: React.FC<any>=() => {
     pageSize: 10,
   });
 
-    const stepFields = [
-        "client_identification",
-        "booking_instructions",
-        "document_entries",
-        "tracking",
-        "custom_clearance",
-        "delivery_haulage",
-        "billing_debtors",
-    ] as const;
+    const [snackMessage, setSnackMessage] = React.useState<{
+        message: string;
+        severity: "success" | "info" | "warning" | "error" | undefined;
+    }>({
+        message: "",
+        severity: "success",
+    });
+    const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
-    type StepField = typeof stepFields[number];
+    const getColumnWidth = (columnId: string) => {
+        const match = pipelineConfigs.find(c => c.accessor === columnId);
+        return match?.width;
+    };
 
-    const nextStatus = (status: StepStatus): StepStatus =>
-        status === "pending"
-            ? "complete"
-            : status === "complete"
-                ? "correction"
-                : "pending";
-
-    const handleSegmentClick = (
-        rowId: number,
-        field: (typeof stepFields)[number]
+    const handleClose = (
+        _event: React.SyntheticEvent<any> | Event,
+        reason?: string,
     ) => {
-        setData((prev: ProcessRow[]) =>
-            prev.map((row) => {
-                if (row.shipment_process_id !== rowId) return row;
-
-                return {
-                    ...row,
-                    [field]: nextStatus(row[field]),
-                };
-            })
-        );
+        if (reason === "clickaway") {
+            return;
+        }
+        setOpenSnackBar(false);
     };
 
     const pipelineConfigs = [
-        { accessor: 'shipment_process_id' as const, header: 'Id', hasWindow: false, hidden: true },
-        { accessor: 'shipment_id' as const, header: 'Shipment Id', hasWindow: false, hidden: false },
+        { accessor: 'shipment_process_id' as const, header: 'Id', hasWindow: false, width: "3%" },
         { accessor: 'client_identification' as const, header: 'Client Identification', hasWindow: false, hidden: false },
         { accessor: 'booking_instructions' as const, header: 'Booking instruction', hasWindow: false, hidden: false },
         { accessor: 'document_entries' as const, header: 'Document entries', hasWindow: true, hidden: false },
@@ -93,23 +99,17 @@ const ProcessLayout: React.FC<any>=() => {
         { accessor: 'delivery_haulage' as const, header: 'Delivery & haulage', hasWindow: false, hidden: false },
     ];
 
-  const handleOpenEntryWindow = (rId: string | number, idx: number, field: string ) => {
-    return {};
-  }
-
-
-  const columnHelper = createColumnHelper<ProcessRow>();
 
     const columns = useMemo(() => {
         return pipelineConfigs
             .filter((c) => !c.hidden)
-            .map((config, index) =>
+            .map((config) =>
             columnHelper.accessor(config.accessor, {
                 header: config.header,
 
                 cell: ({ row, getValue }) => {
+                    if (!stepFields.includes(config.accessor)) {
 
-                    if (!stepFields.includes(config.accessor as StepField)) {
                         return (
                             <span style={{ padding: "0 8px", display: "inline-block" }}>
                                 {String(getValue())}
@@ -124,14 +124,14 @@ const ProcessLayout: React.FC<any>=() => {
                         <PipelineCell
                             status={status}
                             rowId={rowId}
-                            field={config.accessor as StepField}
-                            stepFields={stepFields}
-                            onSegmentClick={(id: number, field: string) => {
-                                if (config.hasWindow) {
-                                    handleOpenEntryWindow(id, index, field);
-                                } else {
-                                    handleSegmentClick(id, field as StepField);
-                                }
+                            field={config.accessor}
+                            rowData={row.original}
+                            onSegmentClick={(id, field) => {
+                                setActivePopover({
+                                    rowId: id,
+                                    columnId: field as ProcessStepType,
+                                    initialData: row.original,
+                                });
                             }}
                         />
                     );
@@ -142,9 +142,37 @@ const ProcessLayout: React.FC<any>=() => {
 
 
   const fetchShippingFlows = async (filter: ListFilter) => {
-      return await getShipmentProcessList(filter);
+      const response= await getShipmentProcessList(filter);
+      if (response && response.data && response.data.data) {
+          const freshRows = response.data.data.map((row: any) => ({
+              ...row
+          }));
+
+          setData(freshRows);
+      }
+      // hack must change; load changes in ttable
   }
 
+    const handleSaveFormFields = async(rowId: number, _columnId: ProcessStepType, formPayload: Record<string, any>) => {
+        const databasePayload = {
+            shipment_process_id: rowId,
+            ...formPayload
+        };
+
+
+        const result = await updateShipmentProcess(databasePayload);
+
+        if (result && (result.status === 204 || result.status === 200)) {
+            const standardizedParams: ListFilter = {
+                offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
+                limit: pageSize,
+                filter: [],
+                sort: [],
+            };
+            await fetchShippingFlows(standardizedParams); // Reload table data to show the updates
+            setActivePopover(null); // Close the form modal
+        }
+    };
 
   const table = useReactTable({
     data,
@@ -160,6 +188,56 @@ const ProcessLayout: React.FC<any>=() => {
     rowCount: totalRows,
   });
 
+    const saveShipmentProcess= async () => {
+        const ShipmentFlow: ShipmentProcessModel = {
+            shipment_id: 0,
+            client_identification: "pending",
+            booking_instructions: "pending",
+            document_entries: "pending",
+            tracking: "pending",
+            custom_clearance: "pending",
+            delivery_haulage: "pending",
+            billing_debtors: "pending",
+            documents: ""
+        }
+
+        const result = await addShipmentProcess(ShipmentFlow);
+        if (!result) return;
+
+        if (result.status && result.status !== 200) {
+            setSnackMessage({
+                message: "Problem saving shipment process",
+                severity: "error",
+            });
+            setOpenSnackBar(true);
+            return;
+        } else {
+            setSnackMessage({
+                message: "Shipment process created",
+                severity: "success",
+            });
+            fetchAllRecords();
+            setOpenSnackBar(true);
+            return;
+        }
+    }
+
+    const fetchAllRecords = () => {
+        const standardizedParams: ListFilter = {
+            offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
+            limit: pageSize,
+            filter: [],
+            sort: [],
+        };
+        fetchShippingFlows(standardizedParams)
+            .then((response: any) => {
+                setData(response.data.data);
+                setTotalRows(response.total);
+            })
+            .catch((err) => console.error('Data layer connection failure', err));
+    }
+
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput);
@@ -170,18 +248,7 @@ const ProcessLayout: React.FC<any>=() => {
   }, [searchInput]);
 
   useEffect(() => {
-    const standardizedParams: ListFilter = {
-      offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
-      limit: pageSize,
-      filter: [],
-      sort: [],
-    };
-      fetchShippingFlows(standardizedParams)
-      .then((response: any) => {
-          setData(response.data.data);
-          setTotalRows(response.total);
-      })
-      .catch((err) => console.error('Data layer connection failure', err));
+      fetchAllRecords();
   }, [pageIndex, pageSize, debouncedSearch]);
 
   return (
@@ -204,6 +271,8 @@ const ProcessLayout: React.FC<any>=() => {
         }}>
           Search Active Processes
         </label>
+
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <input
           type="text"
           value={searchInput}
@@ -221,6 +290,14 @@ const ProcessLayout: React.FC<any>=() => {
             outline: 'none',
           }}
         />
+          <Button
+              type="submit"
+              variant="outlined"
+              onClick={() => saveShipmentProcess()}
+          >
+              Create new process
+          </Button>
+      </div>
       </div>
 
       {/* Main Grid Surface Wrapper */}
@@ -240,9 +317,8 @@ const ProcessLayout: React.FC<any>=() => {
                     padding: '16px',
                     fontSize: '12px',
                     fontWeight: '700',
-                    textTransform: 'uppercase',
                     color: '#475569',
-                    width: header.id === 'shipment_process_id' ? '200px' : 'auto'
+                      width: getColumnWidth(header.column.id)
                   }}>
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
@@ -298,6 +374,12 @@ const ProcessLayout: React.FC<any>=() => {
           </tbody>
         </table>
       </div>
+
+        <DynamicFormOverlay
+            activeForm={activePopover}
+            onClose={() => setActivePopover(null)}
+            onSave={handleSaveFormFields}
+        />
 
       {/* Server Pagination Toolbar Footer */}
       <div style={{
@@ -377,6 +459,21 @@ const ProcessLayout: React.FC<any>=() => {
           </div>
         </div>
       </div>
+        {openSnackBar && (
+            <Snackbar
+                open={openSnackBar}
+                autoHideDuration={5000}
+                onClose={handleClose}
+            >
+                <Alert
+                    onClose={handleClose}
+                    severity={snackMessage.severity}
+                    variant="filled"
+                >
+                    {snackMessage.message}
+                </Alert>
+            </Snackbar>
+        )}
     </div>
   );
 }

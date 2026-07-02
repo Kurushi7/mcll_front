@@ -1,71 +1,114 @@
 import React from 'react';
-import {StepStatus} from "../../views/processFlow/processLayout.tsx";
 
-type StepField =
-    | "client_identification"
-    | "booking_instructions"
-    | "document_entries"
-    | "tracking"
-    | "custom_clearance"
-    | "delivery_haulage"
-    | "billing_debtors";
+export type StepStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
 
 interface PipelineCellProps {
     status: StepStatus;
     rowId: number;
-    field: StepField;
-    stepFields: readonly StepField[];
-    onSegmentClick?: (rowId: number, field: string) => void;
+    field: string;
+    // Receives the entire database row containing all saved checkboxes, customer details, and dates
+    rowData: Record<string, any>;
+    onSegmentClick: (id: number, field: string) => void;
 }
 
-export const PipelineCell: React.FC<PipelineCellProps> = (
-    {status, rowId, field, stepFields, onSegmentClick}) => {
+export const PipelineCell: React.FC<PipelineCellProps> = ({
+  status,
+  rowId,
+  field,
+  rowData,
+  onSegmentClick,
+}) => {
 
-    const THEME: Record<StepStatus, { base: string; gradient: string; glow: string }> = {
-        complete: {
-            base: '#10b981',
-            gradient: 'linear-gradient(to bottom, #a7f3d0 0%, #10b981 40%, #047857 100%)',
-            glow: '0 2px 6px rgba(16, 185, 129, 0.2)',
-        },
-        correction: {
-            base: '#f97316',
-            gradient: 'linear-gradient(to bottom, #fed7aa 0%, #f97316 40%, #c2410c 100%)',
-            glow: '0 2px 6px rgba(249, 115, 22, 0.2)',
-        },
-        pending: {
-            base: '#2e3238',
-            gradient: 'linear-gradient(to bottom, #ffffff 0%, #f1f5f9 50%, #cbd5e1 100%)',
-            glow: 'none',
+
+    const getStyleConfig = () => {
+        switch (status) {
+            case 'completed':
+                return {
+                    gradient: 'linear-gradient(to bottom, #ff7e15 0%, #e65c00 100%)', // Your signature orange
+                    glow: '0 1px 3px rgba(230, 92, 0, 0.4)',
+                };
+            case 'in_progress':
+                return {
+                    gradient: 'linear-gradient(to bottom, #3b82f6 0%, #1d4ed8 100%)', // High-visibility blue
+                    glow: '0 1px 3px rgba(29, 78, 216, 0.3)',
+                };
+            case 'failed':
+                return {
+                    gradient: 'linear-gradient(to bottom, #ef4444 0%, #b91c1c 100%)', // Exception/Error red
+                    glow: '0 1px 3px rgba(185, 28, 28, 0.3)',
+                };
+            case 'pending':
+            default:
+                return {
+                    gradient: 'linear-gradient(to bottom, #f1f5f9 0%, #cbd5e1 100%)', // Neutral placeholder gray
+                    glow: 'none',
+                };
         }
     };
 
-    const stepIndex = stepFields.indexOf(field);
+    const formatDateString = (rawDateStr: string | undefined | null): string => {
+        if (!rawDateStr) return '';
 
-    const isFirst = stepIndex === 0;
-    const isLast = stepIndex === stepFields.length - 1;
+        if (rawDateStr.startsWith('0001-01-01')) {
+            return '';
+        }
 
-    const styleConfig = THEME[status];
+        if (rawDateStr.includes('T')) {
+            return rawDateStr.split('T')[0];
+        }
+
+        return rawDateStr;
+    };
+
+    const styleConfig = getStyleConfig();
+
+
+    const getDisplayText = () => {
+        switch (field) {
+            case 'client_identification':
+                return '';
+
+            case 'booking_instructions':
+                return '';
+
+            case 'document_entries':
+                return formatDateString(rowData.document_date) || '';
+
+            case 'tracking':
+                return formatDateString(rowData['tracking_date']) || '';
+            case 'custom_clearance':
+                return formatDateString(rowData['clearance_date']) || '';
+            case 'delivery_haulage':
+                return formatDateString(rowData['haulage_date']) || '';
+            case 'billing_debtors':
+                return rowData.billing_debtors;
+
+            default:
+                return '';
+        }
+    };
+
+    const displayText = getDisplayText();
+    const isLightBackground = status === 'pending';
 
     return (
         <div
-            onClick={() => onSegmentClick?.(rowId, field)}
+            onClick={() => onSegmentClick(rowId, field)}
             style={{
                 width: '100%',
                 height: '32px',
-                borderRadius: '3px',
-                cursor: onSegmentClick ? 'pointer' : 'default',
+                cursor: 'pointer',
                 background: styleConfig.gradient,
-                boxShadow: `${styleConfig.glow}, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.4)`,
+                boxShadow: styleConfig.glow,
                 position: 'relative',
                 transition: 'all 0.15s ease',
                 boxSizing: 'border-box',
 
-                borderTopLeftRadius: isFirst ? 8 : 0,
-                borderBottomLeftRadius: isFirst ? 8 : 0,
-                borderTopRightRadius: isLast ? 8 : 0,
-                borderBottomRightRadius: isLast ? 8 : 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
             }}
-            title={field}
+            title={`${field.replace(/_/g, ' ')}: ${status}`}
         >
             {status !== 'pending' && (
                 <div
@@ -75,12 +118,30 @@ export const PipelineCell: React.FC<PipelineCellProps> = (
                         left: '2px',
                         right: '2px',
                         height: '40%',
-                        background:
-                            'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
+                        background: 'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
                         borderRadius: '2px',
                         pointerEvents: 'none',
                     }}
                 />
+            )}
+
+            {displayText && (
+                <span
+                    style={{
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        color: isLightBackground ? '#475569' : '#ffffff',
+                        textShadow: isLightBackground ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
+                        pointerEvents: 'none',
+                        zIndex: 2,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        padding: '0 4px'
+                    }}
+                >
+          {displayText}
+        </span>
             )}
         </div>
     );
