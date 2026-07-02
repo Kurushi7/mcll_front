@@ -51,18 +51,19 @@ export const PipelineCell: React.FC<PipelineCellProps> = (
             onClick={() => onSegmentClick?.(rowId, field)}
             style={{
                 width: '100%',
-                height: '22px',
+                height: '32px',
                 borderRadius: '3px',
                 cursor: onSegmentClick ? 'pointer' : 'default',
                 background: styleConfig.gradient,
                 boxShadow: `${styleConfig.glow}, inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.4)`,
                 position: 'relative',
                 transition: 'all 0.15s ease',
+                boxSizing: 'border-box',
 
-                borderTopLeftRadius: isFirst ? 6 : 0,
-                borderBottomLeftRadius: isFirst ? 6 : 0,
-                borderTopRightRadius: isLast ? 6 : 0,
-                borderBottomRightRadius: isLast ? 6 : 0,
+                borderTopLeftRadius: isFirst ? 8 : 0,
+                borderBottomLeftRadius: isFirst ? 8 : 0,
+                borderTopRightRadius: isLast ? 8 : 0,
+                borderBottomRightRadius: isLast ? 8 : 0,
             }}
             title={field}
         >
@@ -73,7 +74,7 @@ export const PipelineCell: React.FC<PipelineCellProps> = (
                         top: '1px',
                         left: '2px',
                         right: '2px',
-                        height: '35%',
+                        height: '40%',
                         background:
                             'linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%)',
                         borderRadius: '2px',

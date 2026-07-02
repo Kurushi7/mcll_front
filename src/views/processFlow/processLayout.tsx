@@ -34,22 +34,18 @@ const ProcessLayout: React.FC<any>=() => {
   const [searchInput, setSearchInput] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
 
+    const [activePopover, setActivePopover] = useState<{
+        rowId: number;
+        field: string;
+        status: string;
+        date: string;
+        rect: DOMRect;
+    } | null>(null);
+
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
-
-    const barContainer = {
-        display: 'flex',
-        width: '100%',
-        height: '22px',
-        backgroundColor: '#f1f5f9', // Dark carbon base
-        borderRadius: '6px',
-        padding: '3px',            // Inset frame border
-        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.8)',
-        overflow: 'hidden',
-        gap: '2px'                 // The structural capsule dividers
-    };
 
     const stepFields = [
         "client_identification",
@@ -235,7 +231,7 @@ const ProcessLayout: React.FC<any>=() => {
         backgroundColor: '#ffffff',
         boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05)'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', tableLayout: 'fixed' }}>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
@@ -257,18 +253,45 @@ const ProcessLayout: React.FC<any>=() => {
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={2} style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
+                <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
                   No active items matched the server query.
                 </td>
               </tr>
             ) : (
                 table.getRowModel().rows.map((row) => (
                     <tr key={row.id} style = {{ height: "42px" }}>
-                        {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id} style={{ padding: 0, verticalAlign: 'middle' }}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                        ))}
+                        {row.getVisibleCells().map((cell, index, array) => {
+
+                            const isFirstColumn = index === 1;
+                            const isLastColumn = index === array.length - 1;
+
+                            return (
+                                <td key={cell.id} style={{
+                                    padding: 0,
+                                    height: '100%',
+                                    verticalAlign: 'middle',
+                                    borderBottom: '1px solid #e2e8f0',
+                                    paddingLeft: isFirstColumn ? '8px' : '0px',
+                                    paddingRight: isLastColumn ? '8px' : '0px'
+                                }}>
+                                    <div className="pipeline-cell-wrapper"
+                                         style={{
+                                             display: 'flex',
+                                             alignItems: 'center',
+                                             width: '100%',
+                                             height: '100%',
+                                             boxSizing: 'border-box',
+                                             borderTopLeftRadius: isFirstColumn ? '99px' : '0px',
+                                             borderBottomLeftRadius: isFirstColumn ? '99px' : '0px',
+                                             borderTopRightRadius: isLastColumn ? '99px' : '0px',
+                                             borderBottomRightRadius: isLastColumn ? '99px' : '0px',
+                                             overflow: 'hidden'
+                                    }}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </div>
+                                </td>
+                            )
+                        })}
                     </tr>
                 ))
             )}
@@ -312,7 +335,7 @@ const ProcessLayout: React.FC<any>=() => {
         <span>
           Page <strong>{pageIndex + 1}</strong> of <strong>{table.getPageCount() || 1}</strong>
         </span>
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
