@@ -6,6 +6,7 @@ import { createTheme } from "@mui/material/styles";
 import { ThemeProvider } from "@mui/material";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 const root = createRoot(
   document.getElementById("root") as HTMLElement,
@@ -17,11 +18,15 @@ const theme = createTheme({
   },
 });
 
+const queryClient= new QueryClient();
+
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <Provider store={store}>
-        <App />
+          <QueryClientProvider client={queryClient}>
+                <App />
+          </QueryClientProvider>
       </Provider>
     </ThemeProvider>
     ,

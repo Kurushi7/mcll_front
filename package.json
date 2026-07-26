@@ -27,6 +27,7 @@
     "@react-pdf-viewer/default-layout": "^3.12.0",
     "@react-pdf/renderer": "^4.5.1",
     "@reduxjs/toolkit": "^2.12.0",
+    "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.18.1",
     "date-fns": "^4.4.0",
@@ -66,13 +67,22 @@
   },
   "eslintConfig": {
     "root": true,
-    "env": { "browser": true, "es2022": true },
+    "env": {
+      "browser": true,
+      "es2022": true
+    },
     "extends": [
       "eslint:recommended",
       "plugin:react/recommended",
       "plugin:react-hooks/recommended"
     ],
-    "ignorePatterns": ["dist", ".eslintrc.cjs"],
-    "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" }
+    "ignorePatterns": [
+      "dist",
+      ".eslintrc.cjs"
+    ],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    }
   }
 }

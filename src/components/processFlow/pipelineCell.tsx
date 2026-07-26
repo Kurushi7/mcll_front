@@ -8,7 +8,7 @@ interface PipelineCellProps {
     field: string;
     // Receives the entire database row containing all saved checkboxes, customer details, and dates
     rowData: Record<string, any>;
-    onSegmentClick: (id: number, field: string) => void;
+    onSegmentClick: (id: number, field: string) => void | Promise<void>;
 }
 
 export const PipelineCell: React.FC<PipelineCellProps> = ({
@@ -81,7 +81,7 @@ export const PipelineCell: React.FC<PipelineCellProps> = ({
             case 'delivery_haulage':
                 return formatDateString(rowData['haulage_date']) || '';
             case 'billing_debtors':
-                return rowData.billing_debtors;
+                return ;
 
             default:
                 return '';

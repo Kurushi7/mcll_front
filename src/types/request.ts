@@ -250,5 +250,23 @@ export interface ShipmentProcessModel{
   custom_clearance?: string;
   delivery_haulage?: string;
   billing_debtors?: string;
-  documents?: string;
+  client_id?: number;
+  client_name?: string;
+  booking_confirmation?: boolean;
+  booking_done?: boolean;
+  release_order?: boolean;
+  haulage_date?: Date;
+  remark?: string;
+  delivery_note?: string;
+  arrival_date?: Date;
+  departure_date?: Date;
+  eta?: Date;
+  shipment_tracking_id?: number;
+  clearance_remarks?: string;
+  tas?: string;
+  noa?: string;
+  debit_note?: boolean;
+  house_bl?:boolean;
+  master_bl?: boolean;
+  invoice?: boolean;
 }

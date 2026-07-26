@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  PaginationState,
-  useReactTable
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel, getSortedRowModel,
+    PaginationState, SortingState,
+    useReactTable
 } from "@tanstack/react-table";
 import {
     addShipmentProcess,
@@ -34,10 +34,13 @@ interface ProcessRow {
     "booking_done": boolean;
     "release_order": boolean;
     "haulage_date": Date;
-    "cl_date": Date;
-    "document_date": Date;
-    "tracking_date": Date;
-    "clearance_date": Date;
+    "remark": string;
+    "clearance_remarks": string;
+    "tas": string;
+    "noa": string;
+    "delivery_note": string;
+    arrival_date: Date;
+    eta: Date;
 }
 
 const columnHelper = createColumnHelper<ProcessRow>();
@@ -56,7 +59,7 @@ const ProcessLayout: React.FC<any>=() => {
 
     const [activePopover, setActivePopover] = useState<{
         rowId: number;
-        columnId: ProcessStepType;
+        columnId: keyof ProcessStepType;
         initialData: ProcessRow;
     } | null>(null);
 
@@ -97,8 +100,33 @@ const ProcessLayout: React.FC<any>=() => {
         { accessor: 'tracking' as const, header: 'Tracking', hasWindow: false, hidden: false },
         { accessor: 'custom_clearance' as const, header: 'Custom clearance', hasWindow: false, hidden: false },
         { accessor: 'delivery_haulage' as const, header: 'Delivery & haulage', hasWindow: false, hidden: false },
+        { accessor: 'billing_debtors' as const, header: 'Billing', hasWindow: false, hidden: false },
     ];
 
+    const handleIdentificationCellClick =async (id: number, field : keyof ProcessStepType, rowOriginal: any) => {
+        if(field === 'client_identification') {
+            const currentStatus = rowOriginal.client_identification as StepStatus;
+
+            const nextStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+
+
+            setData((oldData) => oldData.map((item)=>item.shipment_process_id === id ?
+                {...item, client_identification: nextStatus}: item)
+            );
+
+            await handleSaveFormFields(id, 'client_identification', {
+                client_identification: nextStatus,
+            });
+
+            return
+        }
+
+        setActivePopover({
+            rowId: id,
+            columnId: field as keyof ProcessStepType,
+            initialData: rowOriginal,
+        });
+    }
 
     const columns = useMemo(() => {
         return pipelineConfigs
@@ -129,7 +157,7 @@ const ProcessLayout: React.FC<any>=() => {
                             onSegmentClick={(id, field) => {
                                 setActivePopover({
                                     rowId: id,
-                                    columnId: field as ProcessStepType,
+                                    columnId: field as keyof ProcessStepType,
                                     initialData: row.original,
                                 });
                             }}
@@ -143,22 +171,23 @@ const ProcessLayout: React.FC<any>=() => {
 
   const fetchShippingFlows = async (filter: ListFilter) => {
       const response= await getShipmentProcessList(filter);
-      if (response && response.data && response.data.data) {
+      if (response && response.data) {
           const freshRows = response.data.data.map((row: any) => ({
               ...row
           }));
 
           setData(freshRows);
+          setTotalRows(response.data.total);
+      } else {
+        console.error('Api failed');
       }
-      // hack must change; load changes in ttable
   }
 
-    const handleSaveFormFields = async(rowId: number, _columnId: ProcessStepType, formPayload: Record<string, any>) => {
+    const handleSaveFormFields = async(rowId: number, _columnId: keyof ProcessStepType, formPayload: Partial<ShipmentProcessModel>) => {
         const databasePayload = {
             shipment_process_id: rowId,
             ...formPayload
         };
-
 
         const result = await updateShipmentProcess(databasePayload);
 
@@ -174,14 +203,21 @@ const ProcessLayout: React.FC<any>=() => {
         }
     };
 
+    const [sorting, setSorting] = useState<SortingState>([
+        { id: 'shipment_process_id', desc: false }
+    ]);
+
   const table = useReactTable({
     data,
     columns,
     state: {
       pagination: { pageIndex, pageSize },
+        sorting
     },
+      onSortingChange: setSorting,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
 
     manualPagination: true,
     manualFiltering: true,
@@ -198,7 +234,6 @@ const ProcessLayout: React.FC<any>=() => {
             custom_clearance: "pending",
             delivery_haulage: "pending",
             billing_debtors: "pending",
-            documents: ""
         }
 
         const result = await addShipmentProcess(ShipmentFlow);
@@ -216,25 +251,20 @@ const ProcessLayout: React.FC<any>=() => {
                 message: "Shipment process created",
                 severity: "success",
             });
-            fetchAllRecords();
+            await fetchAllRecords();
             setOpenSnackBar(true);
             return;
         }
     }
 
-    const fetchAllRecords = () => {
+    const fetchAllRecords = async () => {
         const standardizedParams: ListFilter = {
             offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
             limit: pageSize,
             filter: [],
             sort: [],
         };
-        fetchShippingFlows(standardizedParams)
-            .then((response: any) => {
-                setData(response.data.data);
-                setTotalRows(response.total);
-            })
-            .catch((err) => console.error('Data layer connection failure', err));
+        await fetchShippingFlows(standardizedParams);
     }
 
 

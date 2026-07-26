@@ -5,8 +5,8 @@ export interface ShipmentProcess {
     booking_instructions: boolean;
     document_entries: boolean;
     documents: boolean;
-    tracking: boolean;
-    custom_clearance: boolean;
-    delivery_haulage: boolean;
-    billing_debtors: boolean;
+    tracking: string;
+    custom_clearance: string;
+    delivery_haulage: string;
+    billing_debtors: string;
 }

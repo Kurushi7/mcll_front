@@ -1,42 +1,137 @@
-import React from "react";
+import React, {useState} from "react";
+import FileUploader from "../../components/processFlow/fileUploader.tsx";
+import {Autocomplete, FormLabel, TextField} from "@mui/material";
+import {HblFormModel, PersonCountry} from "../../types/ShipmentTypes.ts";
+import {fetchPersonOptions} from "../../store/shipment/shipment.ts";
+import {useAppDispatch} from "../../store/store.ts";
 
-export type ProcessStepType =
-    | 'client_identification'
-    | 'booking_instructions'
-    | 'document_entries'
-    | 'tracking'
-    | 'custom_clearance'
-    | 'delivery_haulage'
-    | 'billing_debtors';
+export interface ProcessStepType {
+    client_identification: string;
+    booking_instructions: string;
+    document_entries: string;
+    tracking: string;
+    custom_clearance: string;
+    delivery_haulage: string;
+    billing_debtors: string;
+    departure_date: Date;
+    arrival_date: Date;
+    eta: Date;
+}
 
 interface ColumnOverlayProps {
     activeForm: {
         rowId: number;
-        columnId: ProcessStepType;
+        columnId: keyof ProcessStepType;
         initialData: any;
     } | null;
     onClose: () => void;
-    onSave: (rowId: number, columnId: ProcessStepType, payload: Record<string, any>) => void;
+    onSave: (rowId: number, columnId: keyof ProcessStepType, payload: Record<string, any>) => void;
 }
+
+const blankItem: HblFormModel = {
+    delivery_agent: null,
+    movement_type: 'fcl',
+    shipper: null,
+    transact_amount: 0,
+    transact_note_ref: "",
+    shipment_id: 0,
+    hbl_no: "",
+    consignee_id: 0,
+    first_name: "",
+    last_name: "",
+    consignee: null,
+    unstuffing_place: "",
+    notify_party1: null,
+    notify_party2: null,
+};
+
+const statusArr=['completed', 'pending', 'other' ]
 
 export default function DynamicFormOverlay({ activeForm, onClose, onSave }: ColumnOverlayProps) {
     if (!activeForm) return null;
 
+    const dispatch = useAppDispatch();
+    const [timeoutId, setTimeoutId] = useState<ReturnType<
+        typeof setTimeout
+    > | null>(null);
     const { columnId, initialData } = activeForm;
+    const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
+    const [shipmentHbl, setShipmentHbl] = useState<HblFormModel>(blankItem);
 
-    const renderFields = () => {
+    const findConsignees = async (
+        event: React.SyntheticEvent,
+        newValue: any,
+    ) => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        const newTimeoutId = setTimeout(async () => {
+            await getPersonsOptions(true, newValue);
+        }, 500);
+
+        setTimeoutId(newTimeoutId);
+    };
+
+    const onFileUploaded= (url: string)=> {
+        console.log("File uploaded", url);
+    }
+
+    const getPersonsOptions = async (allPerson: boolean, term: string) => {
+        const result = await dispatch(fetchPersonOptions({ allPerson, term }));
+
+        if (fetchPersonOptions.fulfilled.match(result)) {
+            if (!result.payload && result.payload !== null) {
+                return;
+            }
+
+            const personOptions = result.payload as PersonCountry[];
+
+            setConsigneeList(personOptions);
+        }
+    };
+
+    const handleAutoCompleteChange = async (
+        event: React.SyntheticEvent,
+        newValue: any,
+        field: string,
+    ) => {
+        setShipmentHbl((prevShipment) => ({
+            ...prevShipment,
+            [field]: newValue,
+        }));
+    };
+
+
+    const renderFields = (columnId: keyof ProcessStepType) => {
+
         switch (columnId) {
             case 'client_identification':
                 return (
                     <>
-                        <label style={labelStyle}>Customer Name</label>
-                        <input
-                            type="text"
-                            name="customer_detail"
-                            defaultValue={initialData.customer_detail || ''}
-                            placeholder="Enter customer verification code or name..."
-                            style={inputStyle}
-                            required
+                        <FormLabel htmlFor="consignee">Consignee</FormLabel>
+                        <Autocomplete
+                            id="consignee"
+                            size="small"
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="standard"
+                                    placeholder="Type a consignee name"
+                                />
+                            )}
+                            options={consigneeList}
+                            getOptionLabel={(option) =>
+                                `${option.first_name} ${option.last_name}`
+                            }
+                            getOptionKey={(option) => option.person_id}
+                            value={shipmentHbl.consignee}
+                            onChange={(event, newValue) =>
+                                handleAutoCompleteChange(event, newValue, "consignee")
+                            }
+                            onInputChange={(event, newInputValue) =>
+                                findConsignees(event, newInputValue)
+                            }
                         />
                     </>
                 );
@@ -72,11 +167,11 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                                 Debit Note Verified
                             </label>
                             <label style={checkboxLabelStyle}>
-                                <input type="checkbox" name="housebl" defaultChecked={!!initialData.housebl} style={checkboxStyle} />
+                                <input type="checkbox" name="house_bl" defaultChecked={!!initialData.house_bl} style={checkboxStyle} />
                                 House BL (HBL) Resolved
                             </label>
                             <label style={checkboxLabelStyle}>
-                                <input type="checkbox" name="masterbl" defaultChecked={!!initialData.masterbl} style={checkboxStyle} />
+                                <input type="checkbox" name="master_bl" defaultChecked={!!initialData.master_bl} style={checkboxStyle} />
                                 Master BL (MBL) Closed
                             </label>
                             <label style={checkboxLabelStyle}>
@@ -84,44 +179,101 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                                 Commercial Invoice Settled
                             </label>
                         </div>
-
-                        <label style={labelStyle}>Documentation Processing Date</label>
-                        <input
-                            type="date"
-                            name="document_entries_date"
-                            defaultValue={initialData.document_entries_date || ''}
-                            style={inputStyle}
-                            required
-                        />
                     </>
                 );
 
-            // Steps 4, 5, 6, and 7 all share the unified Date + Status Change layout patterns
             case 'tracking':
-            case 'custom_clearance':
-            case 'delivery_haulage':
-            case 'billing_debtors':
-                const currentStatus = initialData[columnId] || 'pending';
-                const dateFieldName = `${columnId}_date`;
+                const currentTrackingStatus = initialData[columnId] || 'pending';
 
                 return (
                     <>
-                        <label style={labelStyle}>Update Pipeline Status</label>
-                        <select name={columnId} defaultValue={currentStatus} style={inputStyle}>
-                            <option value="pending">Pending (Gray)</option>
-                            <option value="in_progress">In Progress (Blue)</option>
-                            <option value="completed">Completed (Orange)</option>
-                            <option value="failed">Failed / Exception (Red)</option>
-                        </select>
+                        <label style={labelStyle}>Tracking and follow up</label>
 
-                        <label style={labelStyle}>Milestone Resolution Date</label>
+                        <label style={labelStyle}>Departure date</label>
+                        <input type="date" name="departure_date" defaultValue={initialData.departure_date?.split("T")[0] ?? ""}
+                               style={inputStyle} required />
+
+                        <label style={labelStyle}>Arrival date</label>
+                        <input type="date" name="arrival_date" defaultValue={initialData.arrival_date?.split("T")[0] ?? ""} style={inputStyle} />
+
+                        <label style={labelStyle}>Eta</label>
+                        <input type="date" name="eta" defaultValue={initialData.eta?.split("T")[0] ?? ""} style={inputStyle} />
+
+                        <label style={labelStyle}>Update tracking Status{initialData['tracking']}</label>
+                        <label style={checkboxLabelStyle}>
+                            <select
+                                name='tracking'
+                                defaultValue={ currentTrackingStatus }
+                                onChange={(e) => initialData.tracking = e.target.value}
+                                style={inputStyle}
+                            >
+                                {statusArr.map((status) => (
+                                    <option key={status} value={status}>{status}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                    </>
+                );
+            case 'custom_clearance':
+                const customClearanceStatus = initialData[columnId] || 'pending';
+                return (
+                    <>
+                        <label style={labelStyle}>Remarks</label>
                         <input
-                            type="date"
-                            name={dateFieldName}
-                            defaultValue={initialData[dateFieldName] || ''}
+                            type="text"
+                            name="clearance_remarks"
+                            defaultValue={initialData.clearance_remarks || ''}
+                            placeholder="Enter remarks..."
                             style={inputStyle}
                             required
                         />
+
+                        <label style={labelStyle}>Status</label>
+                        <select
+                            name='custom_clearance'
+                            defaultValue={customClearanceStatus}
+                            onChange={(e) => initialData.custom_clearance = e.target.value}
+                            style={inputStyle}
+                        >
+                            {statusArr.map((status) => (
+                                <option key={status} value={status}>{status}</option>
+                            ))}
+                        </select>
+
+                    </>
+                )
+            case 'delivery_haulage':
+                return (
+                    <>
+                        <label style={labelStyle}>TAS</label>
+                        <FileUploader shipmentProcessId={initialData.shipment_process_id} onUploaded={onFileUploaded}
+                        fileValue={initialData.tas} />
+                    </>
+                );
+            case 'billing_debtors':
+                const currentBillingStatus = initialData[columnId] || 'pending';
+
+                return (
+                    <>
+                        <label style={labelStyle}>Update billing and debtors</label>
+                        <label style={checkboxLabelStyle}>
+                            <select
+                                name="noa"
+                                value={initialData.billing_status}
+                                defaultValue={currentBillingStatus}
+                                onChange={(e) => initialData.status = e.target.value}
+                                style={inputStyle}
+                            >
+                                {statusArr.map((status) => (
+                                    <option key={status} value={status}>{status}</option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label style={labelStyle}>NOA</label>
+                        <FileUploader shipmentProcessId={initialData.shipment_process_id} onUploaded={onFileUploaded}
+                        fileValue={initialData.noa} />
                     </>
                 );
 
@@ -134,12 +286,13 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
         <div style={backdropStyle}>
             <div style={modalCardStyle}>
                 <h3 style={headerStyle}>
-                    Update: {columnId.replace(/_/g, ' ')}
+                    Update: {`${columnId}`.replace(/_/g, ' ')}
                 </h3>
 
                 <form onSubmit={(e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
+
                     const payload: Record<string, any> = {};
 
                     formData.forEach((value, key) => {
@@ -147,31 +300,59 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                     });
 
                     if (columnId === 'client_identification') {
-                        payload.client_identification = payload.customer_detail ? 'completed' : 'pending';
+                        payload.client_id= formData.has('person_id')
+                        payload.client_identification = payload.client_identification ? 'completed' : 'pending';
                     }
+
 
                     if (columnId === 'booking_instructions') {
                         payload.booking_done = formData.has('booking_done');
                         payload.booking_confirmation = formData.has('booking_confirmation');
                         payload.release_order = formData.has('release_order');
 
-                        payload.booking_instructions = (payload.booking_instructions_date && payload.booking_done) ? 'completed' : 'in_progress';
+                        payload.booking_instructions = (payload.booking_confirmation && payload.booking_done
+                        && payload.release_order) ? 'completed' : 'in_progress';
                     }
 
                     if (columnId === 'document_entries') {
                         payload.debit_note = formData.has('debit_note');
-                        payload.housebl = formData.has('housebl');
-                        payload.masterbl = formData.has('masterbl');
+                        payload.house_bl = formData.has('house_bl');
+                        payload.master_bl = formData.has('master_bl');
                         payload.invoice = formData.has('invoice');
 
-                        payload.document_entries = payload.document_entries_date ? 'completed' : 'in_progress';
+                        payload.document_entries = (payload.debit_note && payload.housebl
+                        && payload.masterbl && payload.invoice) ? 'completed' : 'in_progress';
+                    }
+
+                    if(columnId === 'tracking') {
+                        payload.departure_date = formData.get('departure_date');
+                        payload.arrival_date = formData.get('arrival_date');
+                        payload.eta = formData.get('eta');
+                        payload.tracking = formData.get('tracking');
+                        // payload.tracking = (payload.departure_date && payload.arrival_date
+                        //     && payload.eta) ? 'completed' : 'in_progress';
+                    }
+
+                    if(columnId === 'custom_clearance') {
+                        payload.remarks = formData.get('clearance_remarks');
+                        payload.custom_clearance = formData.get('custom_clearance');
+                    }
+
+                    if(columnId === 'delivery_haulage') {
+                        payload.tas = formData.get('tas');
+                        payload.delivery_haulage = payload.tas ? 'completed' : 'in_progress';
+                    }
+
+                    if(columnId === 'billing_debtors') {
+                        payload.billing_debtors = formData.get('billing_debtors');
+                        payload.noa = formData.has('noa');
                     }
 
                     onSave(activeForm.rowId, columnId, payload);
                 }}>
 
                     <div style={{ maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
-                        {renderFields()}
+                        {renderFields(columnId)}
                     </div>
 
                     {/* Action Button Row */}
