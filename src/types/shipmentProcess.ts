@@ -1,9 +1,9 @@
 export interface ShipmentProcess {
     ShipmentProcessId: number;
     ShipmentId: number;
-    client_identification: boolean;
-    booking_instructions: boolean;
-    document_entries: boolean;
+    client_identification: string;
+    booking_instructions: string;
+    document_entries: string;
     documents: boolean;
     tracking: string;
     custom_clearance: string;

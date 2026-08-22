@@ -102,11 +102,26 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
         }));
     };
 
+    const documentList = [
+        {name: "debit_note_required", label: "Debit note", check_field: "debit_note_uploaded"},
+        {name: "credit_note_required", label: "Credit note", check_field: "credit_note_uploaded"},
+        {name: "master_bl_required", label: "Master bl", check_field: "master_bl_uploaded"},
+        {name: "house_bl_required", label: "House bl", check_field: "house_bl_uploaded"},
+        {name: "liner_invoice_required", label: "Liner invoice", check_field: "liner_invoice_uploaded"},
+        {name: "cpw_invoice_required", label: "CPW invoice", check_field: "cpw_invoice_uploaded"},
+    ];
+
 
     const renderFields = (columnId: keyof ProcessStepType) => {
 
         switch (columnId) {
             case 'client_identification':
+                const [firstName, lastName] = initialData.client_name.split(" ");
+                shipmentHbl.consignee = {
+                    person_id: initialData.person_id,
+                    first_name: firstName,
+                    last_name: lastName,
+                }
                 return (
                     <>
                         <FormLabel htmlFor="consignee">Consignee</FormLabel>
@@ -162,6 +177,25 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                     <>
                         <label style={labelStyle}>Manifest Documents Cleared</label>
                         <div style={checkboxGroupStyle}>
+                        {documentList.map(({ name, label, check_field}) => (
+                            <div key={name} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <label style={checkboxLabelStyle}>
+                                    <input type="checkbox" name={name} defaultChecked={!!initialData.documents[name]} style={checkboxStyle} />
+                                    { label }
+                                </label>
+
+                                <span style={{
+                                    ...statusStyle,
+                                    backgroundColor: initialData.documents[check_field] ? "#d1fae5" : "#fef3c7",
+                                    color: initialData.documents[check_field] ? "#065f46" : "#92400e",
+                                }}>
+                                    {initialData.documents[check_field]}
+                                </span>
+                            </div>
+                            )
+                        )}
+                        </div>
+                        <div style={checkboxGroupStyle}>
                             <label style={checkboxLabelStyle}>
                                 <input type="checkbox" name="debit_note" defaultChecked={!!initialData.debit_note} style={checkboxStyle} />
                                 Debit Note Verified
@@ -175,8 +209,16 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                                 Master BL (MBL) Closed
                             </label>
                             <label style={checkboxLabelStyle}>
-                                <input type="checkbox" name="invoice" defaultChecked={!!initialData.invoice} style={checkboxStyle} />
-                                Commercial Invoice Settled
+                                <input type="checkbox" name="liner_invoice" defaultChecked={!!initialData.liner_invoice} style={checkboxStyle} />
+                                Liner Invoice
+                            </label>
+                            <label style={checkboxLabelStyle}>
+                                <input type="checkbox" name="cpw_invoice" defaultChecked={!!initialData.cpw_invoice} style={checkboxStyle} />
+                                Cpw Invoice
+                            </label>
+                            <label style={checkboxLabelStyle}>
+                                <input type="checkbox" name="credit_note" defaultChecked={!!initialData.credit_note} style={checkboxStyle} />
+                                Credit Note Verified
                             </label>
                         </div>
                     </>
@@ -259,10 +301,9 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                         <label style={labelStyle}>Update billing and debtors</label>
                         <label style={checkboxLabelStyle}>
                             <select
-                                name="noa"
-                                value={initialData.billing_status}
+                                name="billing_debtors"
                                 defaultValue={currentBillingStatus}
-                                onChange={(e) => initialData.status = e.target.value}
+                                onChange={(e) => initialData.billing_debtors = e.target.value}
                                 style={inputStyle}
                             >
                                 {statusArr.map((status) => (
@@ -300,8 +341,11 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                     });
 
                     if (columnId === 'client_identification') {
-                        payload.client_id= formData.has('person_id')
-                        payload.client_identification = payload.client_identification ? 'completed' : 'pending';
+                        payload.client_id= payload.client_id ?? shipmentHbl.consignee?.person_id;
+                        payload.client_name= shipmentHbl.consignee?.first_name + ' ' + shipmentHbl.consignee?.last_name;
+                        payload.client_identification = initialData.client_identification === 'pending'
+                            ? 'completed' : 'pending';
+
                     }
 
 
@@ -311,7 +355,7 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                         payload.release_order = formData.has('release_order');
 
                         payload.booking_instructions = (payload.booking_confirmation && payload.booking_done
-                        && payload.release_order) ? 'completed' : 'in_progress';
+                        && payload.release_order) ? 'completed' : 'pending';
                     }
 
                     if (columnId === 'document_entries') {
@@ -320,8 +364,8 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                         payload.master_bl = formData.has('master_bl');
                         payload.invoice = formData.has('invoice');
 
-                        payload.document_entries = (payload.debit_note && payload.housebl
-                        && payload.masterbl && payload.invoice) ? 'completed' : 'in_progress';
+                        payload.document_entries = (payload.debit_note && payload.house_bl
+                        && payload.master_bl && payload.invoice) ? 'completed' : 'pending';
                     }
 
                     if(columnId === 'tracking') {
@@ -330,7 +374,7 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
                         payload.eta = formData.get('eta');
                         payload.tracking = formData.get('tracking');
                         // payload.tracking = (payload.departure_date && payload.arrival_date
-                        //     && payload.eta) ? 'completed' : 'in_progress';
+                        //     && payload.eta) ? 'completed' : 'pending';
                     }
 
                     if(columnId === 'custom_clearance') {
@@ -340,12 +384,12 @@ export default function DynamicFormOverlay({ activeForm, onClose, onSave }: Colu
 
                     if(columnId === 'delivery_haulage') {
                         payload.tas = formData.get('tas');
-                        payload.delivery_haulage = payload.tas ? 'completed' : 'in_progress';
+                        payload.delivery_haulage = payload.delivery_haulage === 'pending' ? 'completed' : 'pending';
                     }
 
                     if(columnId === 'billing_debtors') {
                         payload.billing_debtors = formData.get('billing_debtors');
-                        payload.noa = formData.has('noa');
+                        payload.noa = formData.get('noa');
                     }
 
                     onSave(activeForm.rowId, columnId, payload);
@@ -382,3 +426,18 @@ const checkboxStyle: React.CSSProperties = { width: '16px', height: '16px', curs
 const actionsContainerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '24px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' };
 const cancelBtnStyle: React.CSSProperties = { padding: '9px 16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#475569', fontSize: '13px', fontWeight: 600, cursor: 'pointer' };
 const saveBtnStyle: React.CSSProperties = { padding: '9px 16px', borderRadius: '6px', background: '#f97316', color: '#ffffff', border: 'none', fontSize: '13px', fontWeight: 600, cursor: 'pointer' };
+const documentRowStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    padding: "6px 0",
+};
+
+const statusStyle = {
+    padding: "3px 10px",
+    borderRadius: "12px",
+    fontSize: "12px",
+    fontWeight: "600",
+    minWidth: "60px",
+};
