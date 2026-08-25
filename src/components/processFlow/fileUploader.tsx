@@ -5,6 +5,7 @@ import {
   getSignedUrl,
   uploadFile,
 } from "../../composables/uploader/Uploader.tsx";
+import DocumentPreview from "../common/DocumentPreview.tsx";
 
 type FileUploaderProps = {
   shipmentProcessId: number;
@@ -30,12 +31,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   });
   const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const getFileName = () => {
-    if (!fileValue) return null;
-
-    return fileValue.split(/[\\/]/).pop() ?? "";
-  };
+  const [previewOpen, setPreviewOpen] = React.useState(false);
+  const [previewFile, setPreviewFile] = React.useState<File | null>(null);
 
   const handleUploadFile = async (file: any) => {
     const response = await getSignedUrl();
@@ -149,12 +146,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     mutation.mutate(selectedFiles);
   };
 
+  const handleOpenPreview = (file: File, preview: boolean) => {
+    setPreviewFile(file);
+    setPreviewOpen(preview);
+  };
+
   return (
     <div
       className="form-container"
       style={{
         maxWidth: "420px",
-        margin: "40px auto",
+        margin: "20px auto",
         padding: "24px",
         border: "1px solid #ddd",
         borderRadius: "12px",
@@ -200,7 +202,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   alignItems: "center",
                 }}
               >
-                {file.error && (
+                {file.error ? (
                   <div
                     style={{
                       minWidth: 0,
@@ -209,9 +211,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   >
                     {file.error}
                   </div>
-                )}{" "}
-                :{" "}
-                {
+                ) : (
                   <div
                     style={{
                       minWidth: 0,
@@ -231,6 +231,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
                     <div
                       style={{
+                        marginLeft: "6px",
                         fontSize: "0.8rem",
                         color: "#666",
                         marginTop: "4px",
@@ -239,7 +240,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                       {(file.file.size / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </div>
-                }
+                )}
               </div>
 
               {/* File actions */}
@@ -253,8 +254,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               >
                 <button
                   type="button"
-                  onClick={() => handleReplaceFile(index)}
-                  disabled={mutation.isPending}
+                  onClick={() => handleOpenPreview(file.file, true)}
                   style={{
                     border: "1px solid #1976d2",
                     borderRadius: "6px",
@@ -330,6 +330,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       >
         {mutation.isPending ? "Uploading..." : "Upload file"}
       </button>
+
+      {previewFile && (
+        <DocumentPreview
+          file={previewFile}
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
 
       {openSnackBar && (
         <Snackbar

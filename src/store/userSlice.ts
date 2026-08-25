@@ -28,7 +28,7 @@ export const userSlice = createSlice({
       state.group = action.payload;
       localStorage.setItem("group", action.payload);
     },
-    clearGroup: (state, action: PayloadAction<string>) => {
+    clearGroup: (state, _action: PayloadAction<string>) => {
       state.group = null;
       localStorage.removeItem("group");
     },
