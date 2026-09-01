@@ -21,7 +21,6 @@ import { User } from "../../types/user.ts";
 import { getShipmentList } from "../../composables/shippings/Shipments.ts";
 import ListConstants from "../../composables/constants/table.ts";
 import { FilterItem, ListFilter } from "../../types/table.ts";
-import { boolean } from "zod";
 
 export interface ProcessStepType {
   client_identification: string;
@@ -78,8 +77,6 @@ export default function DynamicFormOverlay({
   userList,
   setProcessData,
 }: ColumnOverlayProps) {
-  if (!activeForm) return null;
-
   const dispatch = useAppDispatch();
   const [timeoutId, setTimeoutId] = useState<ReturnType<
     typeof setTimeout
@@ -96,6 +93,7 @@ export default function DynamicFormOverlay({
   const [fileRefList, setFileRefList] = React.useState<
     { shipment_id: number; file_ref: string }[]
   >([]);
+  if (!activeForm) return null;
 
   const findConsignees = async (
     _event: React.SyntheticEvent,
