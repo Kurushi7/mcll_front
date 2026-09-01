@@ -237,10 +237,12 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
         onClose={() => onClose(4)}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >
@@ -279,8 +281,8 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                     onChange={(event) => {
                       setNewPrice({ ...newPrice, from: event.target.value });
                     }}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}
@@ -303,8 +305,8 @@ const Prices: React.FC<PriceProps> = ({ open, onClose, priceId, personId }) => {
                     onChange={(event) => {
                       setNewPrice({ ...newPrice, to: event.target.value });
                     }}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}

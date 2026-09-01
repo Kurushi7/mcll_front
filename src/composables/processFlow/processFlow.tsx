@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ListFilter } from "../../types/table";
-import {ShipmentProcessModel} from "../../types/request.ts";
+import { ShipmentProcessModel } from "../../types/request.ts";
 
 export const getShipmentProcessList = async (filter: ListFilter) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/shipment-process-list`;
@@ -26,7 +26,9 @@ export const fetchShipmentProcessById = async (shipmentProcessId: number) => {
   });
 };
 
-export const addShipmentProcess = async (shipmentProcess: ShipmentProcessModel) => {
+export const addShipmentProcess = async (
+  shipmentProcess: ShipmentProcessModel,
+) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/add-shipment-process`;
   const token = localStorage.getItem("jwtToken");
 
@@ -38,7 +40,9 @@ export const addShipmentProcess = async (shipmentProcess: ShipmentProcessModel) 
   });
 };
 
-export const updateShipmentProcess = async (shipmentProcess: ShipmentProcessModel) => {
+export const updateShipmentProcess = async (
+  shipmentProcess: ShipmentProcessModel,
+) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/update-shipment-process`;
   const token = localStorage.getItem("jwtToken");
 
@@ -49,5 +53,3 @@ export const updateShipmentProcess = async (shipmentProcess: ShipmentProcessMode
     },
   });
 };
-
-

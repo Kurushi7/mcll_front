@@ -204,8 +204,8 @@ const Company: React.FC<CompanyProps> = ({
               value={company.name}
               helperText={companyErrors.name || ""}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 70,
                 },
               }}
@@ -226,8 +226,8 @@ const Company: React.FC<CompanyProps> = ({
               helperText={companyErrors.email || ""}
               value={company.email}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 120,
                 },
               }}
@@ -252,8 +252,8 @@ const Company: React.FC<CompanyProps> = ({
                 width: "100%",
               }}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 100,
                 },
               }}
@@ -275,8 +275,8 @@ const Company: React.FC<CompanyProps> = ({
               value={company.address_line2}
               helperText={companyErrors.address_line2 || ""}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 100,
                 },
               }}
@@ -297,8 +297,8 @@ const Company: React.FC<CompanyProps> = ({
               helperText={companyErrors.city || ""}
               value={company.city}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 16,
                 },
               }}
@@ -320,8 +320,8 @@ const Company: React.FC<CompanyProps> = ({
               helperText={companyErrors.country || ""}
               value={company.country}
               onChange={handleChange}
-              InputProps={{
-                inputProps: {
+              slotProps={{
+                htmlInput: {
                   maxLength: 20,
                 },
               }}

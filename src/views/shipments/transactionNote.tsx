@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
   Button,
   Card,
   CardContent,
-  CardHeader,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,6 +27,7 @@ import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
 import { currencyList } from "../../composables/constants/currencies";
 import { getRateAtDate } from "../../composables/shippings/Rates";
+import FileUploader from "../../components/processFlow/fileUploader.tsx";
 
 interface Props {
   shipmentId?: number;
@@ -66,6 +65,7 @@ const TransactionNote: React.FC<Props> = ({
       currency: "USD",
       rate: 1,
       shipment_hbl_id: shipmentHblId ?? 0,
+      file_urls: "",
     });
 
   const typeOptions: { id: string; label: string }[] = [
@@ -84,6 +84,10 @@ const TransactionNote: React.FC<Props> = ({
     amount: "",
     rate: "",
   });
+
+  const [urlList, setUrlList] = React.useState<{ url: string; size: number }[]>(
+    [],
+  );
 
   const formSchema = z.object({
     ref_no: z
@@ -109,6 +113,8 @@ const TransactionNote: React.FC<Props> = ({
 
     newTransactionNotes.shipment_id = shipmentId ?? 0;
     newTransactionNotes.shipment_hbl_id = shipmentHblId ?? 0;
+    newTransactionNotes.file_urls = JSON.stringify(urlList);
+
     if (newTransactionNotes.transaction_id) {
       result = await updateTransactionNote(newTransactionNotes);
     } else {
@@ -158,6 +164,7 @@ const TransactionNote: React.FC<Props> = ({
       currency: transactionRecord.currency,
       rate: transactionRecord.rate,
       shipment_hbl_id: transactionRecord.shipment_hbl_id,
+      file_urls: transactionRecord.file_urls,
     });
   };
 
@@ -202,8 +209,8 @@ const TransactionNote: React.FC<Props> = ({
         maxWidth="md"
         hideBackdrop={true}
         fullWidth={true}
-        PaperProps={{
-          style: {
+        sx={{
+          "& .MuiDialog-paper": {
             width: "fit-content",
             maxWidth: "100vw",
             maxHeight: "100vh",
@@ -221,7 +228,7 @@ const TransactionNote: React.FC<Props> = ({
           >
             <CardContent>
               <Grid container size={12} spacing={1}>
-                <Grid size={6}>
+                <Grid size={4}>
                   <FormLabel htmlFor="ref_no">Debit/Credit note ref</FormLabel>
                   <TextField
                     id="ref_no"
@@ -235,15 +242,15 @@ const TransactionNote: React.FC<Props> = ({
                     helperText={errors.ref_no || ""}
                     value={newTransactionNotes.ref_no}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={4}>
                   <FormLabel htmlFor="amount">Debit/Credit amount</FormLabel>
                   <TextField
                     id="amount"
@@ -260,7 +267,7 @@ const TransactionNote: React.FC<Props> = ({
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={4}>
                   <FormLabel id="type">Type</FormLabel>
                   <Select
                     id="type"
@@ -284,7 +291,7 @@ const TransactionNote: React.FC<Props> = ({
                   </Select>
                 </Grid>
 
-                <Grid size={3}>
+                <Grid size={4}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -309,7 +316,7 @@ const TransactionNote: React.FC<Props> = ({
                   </Select>
                 </Grid>
 
-                <Grid size={3}>
+                <Grid size={4}>
                   <FormLabel htmlFor="rate"> Exchange Rate</FormLabel>
                   <TextField
                     id="rate"
@@ -323,6 +330,16 @@ const TransactionNote: React.FC<Props> = ({
                     helperText={errors.rate || ""}
                     value={newTransactionNotes.rate || ""}
                     onChange={(event) => handleChange(event, "float")}
+                  />
+                </Grid>
+
+                <Grid size={4}></Grid>
+
+                <Grid size={12}>
+                  <FileUploader
+                    fileValue={newTransactionNotes.file_urls}
+                    setUrlList={setUrlList}
+                    urlList={urlList}
                   />
                 </Grid>
               </Grid>

@@ -26,6 +26,7 @@ import { getAllUsers } from "../../composables/users.tsx";
 interface ProcessRow {
   shipment_process_id: number;
   client_identification: StepStatus;
+  booking_ref: string;
   booking_instructions: StepStatus;
   document_entries: StepStatus;
   tracking: StepStatus;
@@ -225,7 +226,7 @@ const ProcessLayout: React.FC<any> = () => {
 
     if (result && (result.status === 204 || result.status === 200)) {
       const standardizedParams: ListFilter = {
-        offset: pageIndex, // Map 0-index framework offset to 1-index corporate backend expectation
+        offset: pageIndex,
         limit: pageSize,
         filter: [],
         sort: [],

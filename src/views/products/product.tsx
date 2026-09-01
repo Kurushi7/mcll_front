@@ -156,10 +156,12 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >
@@ -194,8 +196,8 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
                     helperText={errors.name || ""}
                     value={newProduct.name}
                     onChange={handleChange}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 100,
                       },
                     }}
@@ -216,8 +218,8 @@ const Product: React.FC<ProductProps> = ({ open, onClose, productId }) => {
                     helperText={errors.tags || ""}
                     value={newProduct.tags}
                     onChange={handleChange}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 120,
                       },
                     }}

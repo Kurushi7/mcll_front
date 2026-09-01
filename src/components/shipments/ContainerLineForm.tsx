@@ -226,10 +226,12 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >
@@ -265,8 +267,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     helperText={errors.container_no || ""}
                     value={newContainerLine.container_no}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 15,
                       },
                     }}
@@ -287,8 +289,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     helperText={errors.seal_no || ""}
                     value={newContainerLine.seal_no || ""}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 12,
                       },
                     }}
@@ -344,8 +346,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     helperText={errors.measurement || ""}
                     value={newContainerLine.measurement}
                     onChange={(event) => handleChange(event, "float")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 10,
                       },
                     }}
@@ -392,8 +394,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     helperText={errors.description || ""}
                     value={newContainerLine.description || ""}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 120,
                       },
                     }}
@@ -414,8 +416,8 @@ const ContainerLine: React.FC<ContainerLineProps> = ({
                     helperText={errors.marks_numbers || ""}
                     value={newContainerLine.marks_numbers || ""}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}

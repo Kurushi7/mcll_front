@@ -1,4 +1,3 @@
-
 export interface PersonModel {
   person_id?: number;
   first_name: string;
@@ -176,6 +175,7 @@ export interface TransactionNoteModel {
   rate: number;
   date_created?: string;
   shipment_hbl_id: number;
+  file_urls: string;
 }
 
 export interface RateModel {
@@ -240,9 +240,10 @@ export interface FreightQuoteStagingFormModel {
   currency: string;
 }
 
-export interface ShipmentProcessModel{
+export interface ShipmentProcessModel {
   shipment_process_id?: number;
   shipment_id?: number;
+  booking_ref?: string;
   client_identification?: string;
   booking_instructions?: string;
   document_entries?: string;
@@ -263,10 +264,20 @@ export interface ShipmentProcessModel{
   eta?: Date;
   shipment_tracking_id?: number;
   clearance_remarks?: string;
-  tas?: string;
-  noa?: string;
-  debit_note?: boolean;
-  house_bl?:boolean;
-  master_bl?: boolean;
-  invoice?: boolean;
+  documents: {
+    noa?: { url: string; size: number }[];
+    tas?: { url: string; size: number }[];
+    debit_note_required?: boolean;
+    debit_note_uploaded?: boolean;
+    credit_note_required?: boolean;
+    credit_note_uploaded?: boolean;
+    cpw_invoice_required?: boolean;
+    cpw_invoice_uploaded?: boolean;
+    liner_invoice_required?: boolean;
+    liner_invoice_uploaded?: boolean;
+    master_bl_required?: boolean;
+    master_bl_uploaded?: boolean;
+    house_bl_required?: boolean;
+    house_bl_uploaded?: boolean;
+  };
 }

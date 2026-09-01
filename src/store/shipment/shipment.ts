@@ -1,10 +1,10 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import { FilterItem, ListFilter } from "../../types/table";
 import ListConstants from "../../composables/constants/table";
-import { GridSortItem } from "@mui/x-data-grid";
 import { getPersonsList } from "../../composables/persons/Persons";
 import { PersonCountry } from "../../types/ShipmentTypes";
-import { getPortList } from "../../composables/persons/Ports";
+// @ts-ignore
+import { GridSortItem } from "@mui/x-data-grid";
 
 export const fetchPersonOptions = createAsyncThunk(
   "personOptions",

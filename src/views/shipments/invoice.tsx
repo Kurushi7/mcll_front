@@ -19,8 +19,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { InvoiceModel } from "../../types/request";
-import { AxiosError, AxiosResponse } from "axios";
+import { Axios, AxiosError, AxiosResponse } from "axios";
 import { z } from "zod";
 import { validateForm } from "../../composables/product/FormValidation";
 import {
@@ -30,6 +29,11 @@ import {
 } from "../../composables/shippings/Invoices";
 import { TransformedInvoiceModel } from "../../types/invoiceTypes";
 import { getRateAtDate } from "../../composables/shippings/Rates";
+import FileUploader from "../../components/processFlow/fileUploader.tsx";
+import {
+  ProcessDocumentModel,
+  updateProcessDocuments,
+} from "../../composables/common/processDocument.tsx";
 
 interface Props {
   open: boolean;
@@ -66,6 +70,9 @@ const Invoice: React.FC<Props> = ({
     message: "",
     severity: "success",
   });
+  const [urlList, setUrlList] = React.useState<{ url: string; size: number }[]>(
+    [],
+  );
 
   const [newInvoice, setNewInvoice] = useState<TransformedInvoiceModel>({
     date_created: new Date().toISOString().split("T")[0],
@@ -81,6 +88,7 @@ const Invoice: React.FC<Props> = ({
     type: type,
     rate: 1,
     shipment_hbl_id: hblId ?? 0,
+    file_urls: "",
   });
 
   const formSchema = z.object({
@@ -101,6 +109,7 @@ const Invoice: React.FC<Props> = ({
     total: z.number().gt(0, "Total cannot be zero"),
     total_with_vat: z.number().gt(0, "Vat total cannot be zero"),
     rate: z.number().gt(0, "Rate cannot be zero and is required"),
+    file_urls: z.string().optional(),
   });
 
   const executeSave = async (finalInvoiceObj: TransformedInvoiceModel) => {
@@ -113,10 +122,37 @@ const Invoice: React.FC<Props> = ({
     onClose(result);
   };
 
+  const updateProcessDocumentFlags = async (
+    shipment_id: number,
+    file_urls: string,
+  ) => {
+    if (!file_urls) return;
+
+    const documents: ProcessDocumentModel = {
+      shipment_id: shipment_id,
+      liner_invoice_uploaded: !!file_urls,
+    };
+
+    const response = await updateProcessDocuments(documents);
+
+    if (response.status && response.status !== 200) {
+      setSnackMessage({
+        message: "Problem updating process document status",
+        severity: "error",
+      });
+      setOpenSnackBar(true);
+      return;
+    }
+  };
+
   const executeSaveInvoice = async (event: any) => {
     if (event) {
       event.stopPropagation();
       event.preventDefault();
+
+      if (!shipmentId) return;
+
+      newInvoice.file_urls = JSON.stringify(urlList);
 
       const isValid = validateForm(formSchema, newInvoice, setErrors);
 
@@ -124,6 +160,7 @@ const Invoice: React.FC<Props> = ({
         return;
       }
 
+      const fileUrls = JSON.stringify(urlList);
       const finalObj: TransformedInvoiceModel = {
         invoice_ref: newInvoice.invoice_ref,
         currency: newInvoice.currency,
@@ -135,6 +172,7 @@ const Invoice: React.FC<Props> = ({
         type: newInvoice.type,
         invoice_id: invoiceId,
         rate: newInvoice.rate,
+        file_urls: fileUrls,
       };
 
       if (shipmentId) {
@@ -151,6 +189,9 @@ const Invoice: React.FC<Props> = ({
         finalObj.date_created = new Date().toISOString().split("T")[0];
         await executeSave(finalObj);
       }
+
+      //update document process flags
+      await updateProcessDocumentFlags(shipmentId, fileUrls);
     }
   };
 
@@ -177,6 +218,7 @@ const Invoice: React.FC<Props> = ({
         type: invoice.type,
         rate: invoice.rate,
         shipment_hbl_id: hblId ?? 0,
+        file_urls: invoice.file_urls,
       });
     }
   };
@@ -253,7 +295,7 @@ const Invoice: React.FC<Props> = ({
   ];
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent<any> | Event,
+    _event: React.SyntheticEvent<any> | Event,
     reason?: string,
   ) => {
     if (reason === "clickaway") {
@@ -285,7 +327,7 @@ const Invoice: React.FC<Props> = ({
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
+        sx={{
           style: {
             width: "100%",
             maxHeight: "90vh",
@@ -308,7 +350,7 @@ const Invoice: React.FC<Props> = ({
             />
             <CardContent sx={{ paddingTop: "16px" }}>
               <Grid container spacing={1} offset={1} size={8}>
-                <Grid size={12}>
+                <Grid size={3}>
                   <FormLabel htmlFor="invoice_ref">Invoice Ref</FormLabel>
                   <TextField
                     id="invoice_ref"
@@ -322,15 +364,15 @@ const Invoice: React.FC<Props> = ({
                     helperText={errors.invoice_ref || ""}
                     value={newInvoice.invoice_ref}
                     onChange={(event) => handleChange(event, "string")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel id="currency">Currency</FormLabel>
                   <Select
                     id="currency"
@@ -354,7 +396,7 @@ const Invoice: React.FC<Props> = ({
                       })}
                   </Select>
                 </Grid>
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="rate">Exchange rate</FormLabel>
                   <TextField
                     id="rate"
@@ -371,7 +413,7 @@ const Invoice: React.FC<Props> = ({
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="invoice_date">Invoice date</FormLabel>
                   <TextField
                     id="invoice_date"
@@ -388,7 +430,7 @@ const Invoice: React.FC<Props> = ({
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="due_date">Due date</FormLabel>
                   <TextField
                     id="due_date"
@@ -405,7 +447,7 @@ const Invoice: React.FC<Props> = ({
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="total">Total</FormLabel>
                   <TextField
                     id="total"
@@ -419,15 +461,15 @@ const Invoice: React.FC<Props> = ({
                     helperText={errors.total || ""}
                     value={newInvoice.total || ""}
                     onChange={(event) => handleChange(event, "float")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 7,
                       },
                     }}
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="vat">VAT</FormLabel>
                   <TextField
                     id="vat"
@@ -438,15 +480,15 @@ const Invoice: React.FC<Props> = ({
                     type="number"
                     value={newInvoice.vat || ""}
                     onChange={(event) => handleChange(event, "float")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 7,
                       },
                     }}
                   />
                 </Grid>
 
-                <Grid size={6}>
+                <Grid size={3}>
                   <FormLabel htmlFor="total_with_vat">VAT total</FormLabel>
                   <TextField
                     id="total_with_vat"
@@ -460,11 +502,19 @@ const Invoice: React.FC<Props> = ({
                     helperText={errors.total_with_vat || ""}
                     value={newInvoice.total_with_vat || ""}
                     onChange={(event) => handleChange(event, "float")}
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 7,
                       },
                     }}
+                  />
+                </Grid>
+                <Grid size={3}></Grid>
+                <Grid size={12}>
+                  <FileUploader
+                    fileValue={newInvoice.file_urls}
+                    setUrlList={setUrlList}
+                    urlList={urlList}
                   />
                 </Grid>
               </Grid>

@@ -1,25 +1,29 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Alert, Snackbar, SnackbarCloseReason } from "@mui/material";
 import {
+  getFile,
   getSignedUrl,
   uploadFile,
 } from "../../composables/uploader/Uploader.tsx";
 import DocumentPreview from "../common/DocumentPreview.tsx";
+import { isValidUrl } from "../../composables/common/fileFunctions.tsx";
 
 type FileUploaderProps = {
-  shipmentProcessId: number;
-  onUploaded: (url: string) => void;
   fileValue: string;
+  setUrlList: React.Dispatch<
+    React.SetStateAction<{ url: string; size: number }[]>
+  >;
+  urlList: { url: string; size: number }[];
 };
 
 const FileUploader: React.FC<FileUploaderProps> = ({
-  shipmentProcessId,
-  onUploaded,
   fileValue,
+  setUrlList,
+  urlList,
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<
-    { file: File; error: string }[]
+    { file: File | null; error: string; url: string | null; size: number }[]
   >([]);
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [snackMessage, setSnackMessage] = React.useState<{
@@ -34,19 +38,32 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const [previewOpen, setPreviewOpen] = React.useState(false);
   const [previewFile, setPreviewFile] = React.useState<File | null>(null);
 
-  const handleUploadFile = async (file: any) => {
-    const response = await getSignedUrl();
+  const handleUploadFile = async (
+    files: { file: File | null; error: string }[],
+  ) => {
+    const response = await getSignedUrl(files.length);
     let error: boolean = false;
     if (!(response && response.data && response.data.data)) error = true;
 
     await Promise.all(
-      response.data.data.map((item: { url: string; error: string }, index) => {
-        if (item.error) {
-          return Promise.resolve();
-        }
+      response.data.data.map(
+        async (item: { url: string; error: string }, index: number) => {
+          if (item.error) {
+            return Promise.resolve();
+          }
 
-        return uploadFile(shipmentProcessId, file, item.url);
-      }),
+          if (!files[index].file) return Promise.resolve();
+          const uResponse = await uploadFile(files[index].file, item.url);
+
+          setUrlList((prev) => [
+            ...prev,
+            {
+              url: uResponse.data.fileUrl,
+              size: files[index].file ? files[index].file.size : 0,
+            },
+          ]);
+        },
+      ),
     );
 
     if (error) {
@@ -68,7 +85,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       });
       setOpenSnackBar(true);
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async (_data: any) => {
       // onUploaded(selectedFile?.name ?? "");
       setSnackMessage({
         message: `File uploaded successfully`,
@@ -84,6 +101,18 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       setOpenSnackBar(true);
     },
   });
+
+  const getFileFromUrl = async (url: string) => {
+    const response = await getFile(url);
+    if (!(response && response.data)) return;
+
+    const file = new File([response.data], url.split("\\").pop() || "file", {
+      type: response.data.type,
+    });
+
+    setPreviewFile(file);
+    setPreviewOpen(true);
+  };
 
   const removeFile = (index: number) => {
     setSelectedFiles((files) => files.filter((_, i) => i !== index));
@@ -106,7 +135,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     setSelectedFiles((previous) => {
       if (replaceIndex !== null) {
         const next = [...previous];
-        next[replaceIndex] = { file: files[0], error: "" };
+        next[replaceIndex] = {
+          url: "",
+          file: files[0],
+          error: "",
+          size: files[0].size,
+        };
         return next;
       }
 
@@ -115,6 +149,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         ...files.map((file) => ({
           file,
           error: "",
+          url: "",
+          size: file.size,
         })),
       ];
     });
@@ -146,10 +182,63 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     mutation.mutate(selectedFiles);
   };
 
-  const handleOpenPreview = (file: File, preview: boolean) => {
-    setPreviewFile(file);
+  const handleOpenPreview = async (
+    file: File | null,
+    url: string,
+    preview: boolean,
+  ) => {
+    if (file) {
+      setPreviewFile(file);
+    }
+
+    if (url) {
+      await getFileFromUrl(url);
+    }
     setPreviewOpen(preview);
   };
+
+  useEffect(() => {
+    (async () => {
+      if (!fileValue) return;
+      const loadFiles = async () => {
+        let files: { url: string; size: number }[] = [];
+        try {
+          files = JSON.parse(fileValue);
+        } catch (error) {
+          console.log("parsing fail", files);
+        }
+
+        let loadedFiles: {
+          file: File | null;
+          error: string;
+          url: string | null;
+          size: number;
+        }[] = [];
+
+        loadedFiles = await Promise.all(
+          files.map(async (file) => {
+            if (!file || !isValidUrl(file.url))
+              return {
+                file: null,
+                error: "Invalid url in storage",
+                url: "",
+                size: 0,
+              };
+
+            return {
+              file: null,
+              error: "",
+              url: file.url,
+              size: file.size,
+            };
+          }),
+        );
+        setSelectedFiles(loadedFiles);
+      };
+
+      await loadFiles();
+    })();
+  }, [fileValue]);
 
   return (
     <div
@@ -186,7 +275,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
           {selectedFiles.map((file, index) => (
             <div
-              key={`${file.file.name}-${index}`}
+              key={file.file ? `${file.file.name}-${index}` : `${index}`}
               style={{
                 padding: "12px",
                 marginBottom: "8px",
@@ -226,7 +315,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      📄 {file.file.name}
+                      📄
+                      {file.file?.name ?? file.url ?? "Problem getting file"}
                     </div>
 
                     <div
@@ -237,7 +327,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                         marginTop: "4px",
                       }}
                     >
-                      {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                      {file.file
+                        ? (file.file.size / 1024 / 1024).toFixed(2)
+                        : (file.size ?? 0)}
+                      MB
                     </div>
                   </div>
                 )}
@@ -254,7 +347,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               >
                 <button
                   type="button"
-                  onClick={() => handleOpenPreview(file.file, true)}
+                  onClick={async () => {
+                    if (file.file) {
+                      await handleOpenPreview(file.file, "", true);
+                    } else if (file.url) {
+                      await handleOpenPreview(null, file.url, true);
+                    }
+                  }}
                   style={{
                     border: "1px solid #1976d2",
                     borderRadius: "6px",

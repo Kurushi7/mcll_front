@@ -679,10 +679,12 @@ const FreightQuoteStagingList = () => {
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >

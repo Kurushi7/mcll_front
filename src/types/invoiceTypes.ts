@@ -12,4 +12,5 @@ export interface TransformedInvoiceModel {
   date_created?: string;
   rate: number;
   shipment_hbl_id?: number;
+  file_urls: string;
 }

@@ -393,8 +393,8 @@ const VesselList = () => {
                         helperText={errors.name || ""}
                         value={vessels.name}
                         onChange={handleChange}
-                        InputProps={{
-                          inputProps: {
+                        slotProps={{
+                          htmlInput: {
                             maxLength: 20,
                           },
                         }}

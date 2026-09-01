@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DocViewer, { DocViewerRenderers } from "@iamjariwala/react-doc-viewer";
 import {
   Button,
@@ -17,11 +17,19 @@ type Props = {
 };
 
 const DocumentPreview: React.FC<Props> = ({ file, open, onClose }) => {
-  const url = useMemo(() => URL.createObjectURL(file), [file]);
+  const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    return () => URL.revokeObjectURL(url);
-  }, [url]);
+    if (!file) {
+      setUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
 
   return (
     <Dialog
@@ -55,14 +63,16 @@ const DocumentPreview: React.FC<Props> = ({ file, open, onClose }) => {
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, height: "80vh" }}>
-        <iframe
-          src={url}
-          style={{
-            width: "100%",
-            height: "80vh",
-            border: 0,
-          }}
-        />
+        {url && (
+          <iframe
+            src={url}
+            style={{
+              width: "100%",
+              height: "80vh",
+              border: 0,
+            }}
+          />
+        )}
         {/*<DocViewer*/}
         {/*  documents={[{ uri: url }]}*/}
         {/*  pluginRenderers={DocViewerRenderers}*/}

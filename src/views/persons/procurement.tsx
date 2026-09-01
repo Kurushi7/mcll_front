@@ -158,9 +158,11 @@ const Procurement: React.FC<ProcurementProps> = ({
         onClose={() => onClose(2)}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              maxHeight: "90vh",
+            },
           },
         }}
       >

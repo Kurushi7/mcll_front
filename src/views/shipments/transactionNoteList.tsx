@@ -1,34 +1,18 @@
 import React, { useState } from "react";
 import {
   Alert,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardHeader,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  FormLabel,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
-  Select,
   Snackbar,
   SnackbarCloseReason,
-  TextField,
   ThemeProvider,
 } from "@mui/material";
-import { z } from "zod";
 import { AxiosError, AxiosResponse } from "axios";
-import { validateForm } from "../../composables/product/FormValidation";
 import { TransactionNoteModel } from "../../types/request";
 import {
-  addTransactionNote,
   getTransactionNote,
   getTransactionNoteList,
-  updateTransactionNote,
 } from "../../composables/shippings/TransactionNotes";
 import { createTheme } from "@mui/material/styles";
 import getTheme from "../../theme/themeCustomizations";
@@ -36,10 +20,7 @@ import DataTable from "../../components/DataTable";
 import { ButtonList, Column, ListFilter } from "../../types/table";
 import ListConstants from "../../composables/constants/table";
 import SmartButtonOutlinedIcon from "@mui/icons-material/SmartButtonOutlined";
-import { currencyList } from "../../composables/constants/currencies";
-import { getRateAtDate } from "../../composables/shippings/Rates";
 import TransactionNote from "./transactionNote";
-import { useSelector } from "react-redux";
 import CardTitle from "../../components/global/Card/CardTitle";
 
 interface Props {
@@ -51,7 +32,7 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
   const customTheme = createTheme(getTheme());
   const [open, setOpen] = React.useState(false);
 
-  const [newTransactionNotes, setNewTransactionNotes] =
+  const [_newTransactionNotes, setNewTransactionNotes] =
     useState<TransactionNoteModel>({
       transaction_id: 0,
       ref_no: "",
@@ -61,19 +42,12 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
       currency: "USD",
       rate: 1,
       shipment_hbl_id: hblId ?? 0,
+      file_urls: "",
     });
 
   const [reloadData, setReloadData] = React.useState(false);
-  const [popOverAnchorEl, setPopOverAnchorEl] = useState<HTMLElement | null>(
-    null,
-  );
   const [transactionId, setTransactionId] = useState();
 
-  const [errors, setErrors] = useState<Record<string, string | null>>({
-    ref_no: "",
-    amount: "",
-    rate: "",
-  });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [snackMessage, setSnackMessage] = React.useState<{
     message: string;
@@ -83,59 +57,8 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
     severity: "success",
   });
 
-  const formSchema = z.object({
-    ref_no: z
-      .string()
-      .min(3, `The ${newTransactionNotes.type} note ref is required`),
-    amount: z.number().gt(0, "The amount is required"),
-    rate: z.number().gt(0, "The exchange rate is required"),
-  });
-
-  const saveTransactionNote = async () => {
-    const isValid = validateForm(formSchema, newTransactionNotes, setErrors);
-
-    if (!isValid) {
-      return;
-    }
-
-    let result: AxiosResponse<any, any> | undefined = undefined;
-
-    newTransactionNotes.shipment_id = shipmentId ?? 0;
-    newTransactionNotes.shipment_hbl_id = hblId ?? 0;
-    if (newTransactionNotes.transaction_id) {
-      result = await updateTransactionNote(newTransactionNotes);
-    } else {
-      newTransactionNotes.date_created = new Date().toISOString();
-      result = await addTransactionNote(newTransactionNotes);
-    }
-
-    if (!result) return;
-
-    if (result.status) {
-      if (result.status === 200) {
-        setSnackMessage({
-          message: `${newTransactionNotes.type} note saved successfully`,
-          severity: "success",
-        });
-      } else if (result.status === 204) {
-        setSnackMessage({
-          message: `${newTransactionNotes.type} note updated successfully`,
-          severity: "success",
-        });
-      }
-      setReloadData(true);
-      setOpenSnackBar(true);
-    } else {
-      setSnackMessage({
-        message: `Error while saving shipment`,
-        severity: "error",
-      });
-      setOpenSnackBar(true);
-    }
-  };
-
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
@@ -161,6 +84,7 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
       currency: transactionRecord.currency,
       rate: transactionRecord.rate,
       shipment_hbl_id: transactionRecord.shipment_hbl_id,
+      file_urls: transactionRecord.file_urls,
     });
   };
 
@@ -176,7 +100,7 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
       setAnchorEl(null);
     };
 
-    const handleAction = async (selectedAction: string, event: any) => {
+    const handleAction = async (selectedAction: string, _event: any) => {
       handleMenuClose();
       if (selectedAction === "edit") {
         await fetchTransactionNote(row.transaction_id);
@@ -320,7 +244,7 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
   const actions: ButtonList[] = [
     {
       key: "create-transaction-note",
-      handleOnClick: (data?: any) => {
+      handleOnClick: (_data?: any) => {
         setOpen(true);
       },
       label: "Create transaction note",

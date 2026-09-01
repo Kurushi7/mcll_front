@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FileUploader from "../../components/processFlow/fileUploader.tsx";
 import {
   Autocomplete,
@@ -10,10 +10,18 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { HblFormModel, PersonCountry } from "../../types/ShipmentTypes.ts";
+import {
+  HblFormModel,
+  PersonCountry,
+  ShipmentFormModel,
+} from "../../types/ShipmentTypes.ts";
 import { fetchPersonOptions } from "../../store/shipment/shipment.ts";
 import { useAppDispatch } from "../../store/store.ts";
 import { User } from "../../types/user.ts";
+import { getShipmentList } from "../../composables/shippings/Shipments.ts";
+import ListConstants from "../../composables/constants/table.ts";
+import { FilterItem, ListFilter } from "../../types/table.ts";
+import { boolean } from "zod";
 
 export interface ProcessStepType {
   client_identification: string;
@@ -79,6 +87,15 @@ export default function DynamicFormOverlay({
   const { columnId, initialData } = activeForm;
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
   const [shipmentHbl, setShipmentHbl] = useState<HblFormModel>(blankItem);
+  const [noaUrlList, setNoaUrlList] = React.useState<
+    { url: string; size: number }[]
+  >([]);
+  const [tasUrlList, setTasUrlList] = React.useState<
+    { url: string; size: number }[]
+  >([]);
+  const [fileRefList, setFileRefList] = React.useState<
+    { shipment_id: number; file_ref: string }[]
+  >([]);
 
   const findConsignees = async (
     _event: React.SyntheticEvent,
@@ -95,10 +112,6 @@ export default function DynamicFormOverlay({
     setTimeoutId(newTimeoutId);
   };
 
-  const onFileUploaded = (url: string) => {
-    console.log("File uploaded", url);
-  };
-
   const getPersonsOptions = async (allPerson: boolean, term: string) => {
     const result = await dispatch(fetchPersonOptions({ allPerson, term }));
 
@@ -111,6 +124,56 @@ export default function DynamicFormOverlay({
 
       setConsigneeList(personOptions);
     }
+  };
+
+  const getShipmentOptions = async (term: string) => {
+    const listFilter: ListFilter = {
+      limit: 0,
+      offset: 0,
+      filter: [],
+      sort: [],
+    };
+
+    let filterItem: FilterItem;
+
+    if (term) {
+      filterItem = {
+        field: "file_ref",
+        value: `${term}`,
+        operator: ListConstants.CONTAINS,
+        logicOperator: "and",
+      };
+      listFilter.filter.push(filterItem);
+    }
+
+    const result = await getShipmentList(listFilter);
+
+    if (!result.data) return null;
+
+    const shipmentList: ShipmentFormModel[] = result.data.data;
+
+    const fileRef: { shipment_id: number; file_ref: string }[] =
+      shipmentList.map((shipment: ShipmentFormModel) => ({
+        shipment_id: shipment.shipment_id ?? 0,
+        file_ref: shipment.file_ref,
+      }));
+
+    setFileRefList(fileRef);
+  };
+
+  const getBookingList = async (
+    _event: React.SyntheticEvent,
+    newValue: any,
+  ) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    const newTimeoutId = setTimeout(async () => {
+      await getShipmentOptions(newValue);
+    }, 500);
+
+    setTimeoutId(newTimeoutId);
   };
 
   const handleAutoCompleteChange = async (
@@ -156,6 +219,12 @@ export default function DynamicFormOverlay({
       check_field: "cpw_invoice_uploaded",
     },
   ];
+
+  useEffect(() => {
+    (async () => {
+      await getShipmentOptions("");
+    })();
+  }, []);
 
   const renderFields = (columnId: keyof ProcessStepType) => {
     switch (columnId) {
@@ -227,6 +296,44 @@ export default function DynamicFormOverlay({
                 />
                 Release Order Attached
               </label>
+            </div>
+
+            <div>
+              <FormControl
+                sx={{ paddingTop: "4px" }}
+                size="small"
+                fullWidth={true}
+              >
+                <FormLabel htmlFor="file_ref">Booking reference</FormLabel>
+                <Autocomplete
+                  id="file_ref"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      name="file_ref"
+                      placeholder="Enter the booking ref"
+                    />
+                  )}
+                  options={fileRefList}
+                  getOptionLabel={(option) => option.file_ref}
+                  isOptionEqualToValue={(option, value) =>
+                    option.shipment_id === value.shipment_id
+                  }
+                  value={
+                    fileRefList.find(
+                      (option) => option.file_ref === initialData.file_ref,
+                    ) ?? null
+                  }
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "file_ref")
+                  }
+                  onInputChange={(event, newInputValue) =>
+                    getBookingList(event, newInputValue)
+                  }
+                />
+              </FormControl>
             </div>
 
             <Box
@@ -409,62 +516,6 @@ export default function DynamicFormOverlay({
                 </div>
               ))}
             </div>
-            <div style={checkboxGroupStyle}>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="debit_note"
-                  defaultChecked={!!initialData.debit_note}
-                  style={checkboxStyle}
-                />
-                Debit Note Verified
-              </label>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="house_bl"
-                  defaultChecked={!!initialData.house_bl}
-                  style={checkboxStyle}
-                />
-                House BL (HBL) Resolved
-              </label>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="master_bl"
-                  defaultChecked={!!initialData.master_bl}
-                  style={checkboxStyle}
-                />
-                Master BL (MBL) Closed
-              </label>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="liner_invoice"
-                  defaultChecked={!!initialData.liner_invoice}
-                  style={checkboxStyle}
-                />
-                Liner Invoice
-              </label>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="cpw_invoice"
-                  defaultChecked={!!initialData.cpw_invoice}
-                  style={checkboxStyle}
-                />
-                Cpw Invoice
-              </label>
-              <label style={checkboxLabelStyle}>
-                <input
-                  type="checkbox"
-                  name="credit_note"
-                  defaultChecked={!!initialData.credit_note}
-                  style={checkboxStyle}
-                />
-                Credit Note Verified
-              </label>
-            </div>
           </>
         );
 
@@ -553,15 +604,14 @@ export default function DynamicFormOverlay({
           <>
             <label style={labelStyle}>TAS</label>
             <FileUploader
-              shipmentProcessId={initialData.shipment_process_id}
-              onUploaded={onFileUploaded}
-              fileValue={initialData.tas}
+              fileValue={initialData.documents ? initialData.documents.tas : ""}
+              setUrlList={setTasUrlList}
+              urlList={tasUrlList}
             />
           </>
         );
       case "billing_debtors":
         const currentBillingStatus = initialData[columnId] || "pending";
-
         return (
           <>
             <label style={labelStyle}>Update billing and debtors</label>
@@ -582,9 +632,9 @@ export default function DynamicFormOverlay({
 
             <label style={labelStyle}>NOA</label>
             <FileUploader
-              shipmentProcessId={initialData.shipment_process_id}
-              onUploaded={onFileUploaded}
-              fileValue={initialData.noa}
+              fileValue={initialData.documents ? initialData.documents.noa : ""}
+              setUrlList={setNoaUrlList}
+              urlList={noaUrlList}
             />
           </>
         );
@@ -598,6 +648,55 @@ export default function DynamicFormOverlay({
     }
   };
 
+  type Payload = {
+    documents: {
+      noa?: { url: string; size: number }[];
+      tas?: { url: string; size: number }[];
+      debit_note_required?: boolean;
+      debit_note_uploaded?: boolean;
+      credit_note_required?: boolean;
+      credit_note_uploaded?: boolean;
+      cpw_invoice_required?: boolean;
+      cpw_invoice_uploaded?: boolean;
+      liner_invoice_required?: boolean;
+      liner_invoice_uploaded?: boolean;
+      master_bl_required?: boolean;
+      master_bl_uploaded?: boolean;
+      house_bl_required?: boolean;
+      house_bl_uploaded?: boolean;
+    };
+    [key: string]: any;
+  };
+
+  type DocumentField =
+    | "debit_note_required"
+    | "debit_note_uploaded"
+    | "credit_note_required"
+    | "credit_note_uploaded"
+    | "house_bl_required"
+    | "house_bl_uploaded"
+    | "master_bl_required"
+    | "master_bl_uploaded"
+    | "liner_invoice_required"
+    | "liner_invoice_uploaded"
+    | "cpw_invoice_required"
+    | "cpw_invoice_uploaded";
+
+  const documentFields: DocumentField[] = [
+    "debit_note_required",
+    "debit_note_uploaded",
+    "credit_note_required",
+    "credit_note_uploaded",
+    "house_bl_required",
+    "house_bl_uploaded",
+    "master_bl_required",
+    "master_bl_uploaded",
+    "liner_invoice_required",
+    "liner_invoice_uploaded",
+    "cpw_invoice_required",
+    "cpw_invoice_uploaded",
+  ] as const;
+
   return (
     <div style={backdropStyle}>
       <div style={modalCardStyle}>
@@ -608,10 +707,18 @@ export default function DynamicFormOverlay({
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
 
-            const payload: Record<string, any> = {};
+            const payload: Payload = {
+              documents: {},
+            };
+
+            documentFields.forEach((field) => {
+              payload.documents[field] = formData.has(field);
+            });
 
             formData.forEach((value, key) => {
-              payload[key] = value;
+              if (!(documentFields as readonly string[]).includes(key)) {
+                payload[key] = value;
+              }
             });
 
             if (columnId === "client_identification") {
@@ -633,6 +740,7 @@ export default function DynamicFormOverlay({
                 "booking_confirmation",
               );
               payload.release_order = formData.has("release_order");
+              payload.booking_ref = formData.get("booking_ref");
 
               payload.de_user_id = Number(payload.de_user_id);
               payload.t_user_id = Number(payload.t_user_id);
@@ -649,16 +757,49 @@ export default function DynamicFormOverlay({
             }
 
             if (columnId === "document_entries") {
-              payload.debit_note = formData.has("debit_note");
-              payload.house_bl = formData.has("house_bl");
-              payload.master_bl = formData.has("master_bl");
-              payload.invoice = formData.has("invoice");
+              console.log("yoloi", payload);
+              payload.documents.debit_note_required = formData.has(
+                "debit_note_required",
+              );
+              payload.documents.debit_note_uploaded = formData.has(
+                "debit_note_uploaded",
+              );
+              payload.documents.credit_note_required = formData.has(
+                "credit_note_required",
+              );
+              payload.documents.credit_note_uploaded = formData.has(
+                "credit_note_uploaded",
+              );
+              payload.documents.house_bl_required =
+                formData.has("house_bl_required");
+              payload.documents.house_bl_uploaded =
+                formData.has("house_bl_uploaded");
 
+              payload.documents.master_bl_required =
+                formData.has("master_bl_required");
+
+              payload.documents.master_bl_uploaded =
+                formData.has("master_bl_uploaded");
+              payload.documents.liner_invoice_required = formData.has(
+                "liner_invoice_required",
+              );
+              payload.documents.liner_invoice_uploaded = formData.has(
+                "liner_invoice_uploaded",
+              );
+              payload.documents.cpw_invoice_required = formData.has(
+                "cpw_invoice_required",
+              );
+              payload.documents.cpw_invoice_uploaded = formData.has(
+                "cpw_invoice_uploaded",
+              );
+              console.log("payload", payload);
               payload.document_entries =
-                payload.debit_note &&
-                payload.house_bl &&
-                payload.master_bl &&
-                payload.invoice
+                payload.documents.debit_note_uploaded &&
+                payload.documents.cpw_invoice_uploaded &&
+                payload.documents.liner_invoice_uploaded &&
+                payload.documents.master_bl_uploaded &&
+                payload.documents.house_bl_uploaded &&
+                payload.documents.credit_note_uploaded
                   ? "completed"
                   : "pending";
             }
@@ -678,7 +819,10 @@ export default function DynamicFormOverlay({
             }
 
             if (columnId === "delivery_haulage") {
-              payload.tas = formData.get("tas");
+              payload.documents.tas = tasUrlList.map((file) => ({
+                url: file.url,
+                size: file.size,
+              }));
               payload.delivery_haulage =
                 payload.delivery_haulage === "pending"
                   ? "completed"
@@ -687,7 +831,7 @@ export default function DynamicFormOverlay({
 
             if (columnId === "billing_debtors") {
               payload.billing_debtors = formData.get("billing_debtors");
-              payload.noa = formData.get("noa");
+              payload.documents.noa = noaUrlList;
             }
 
             onSave(activeForm.rowId, columnId, payload);

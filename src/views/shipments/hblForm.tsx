@@ -438,8 +438,8 @@ const HblForm: React.FC<hblProps> = ({
                 helperText={errors.hbl_no || ""}
                 value={shipmentHbl.hbl_no}
                 onChange={handleChange}
-                sx={{
-                  inputProps: {
+                slotProps={{
+                  htmlInput: {
                     maxLength: 20,
                   },
                 }}
@@ -555,8 +555,8 @@ const HblForm: React.FC<hblProps> = ({
                 required
                 onChange={handleChange}
                 value={shipmentHbl.unstuffing_place}
-                sx={{
-                  inputProps: {
+                slotProps={{
+                  htmlInput: {
                     maxLength: 30,
                   },
                 }}

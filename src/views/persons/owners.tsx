@@ -161,10 +161,12 @@ const Owners: React.FC<OwnerProps> = ({
         onClose={() => onClose(1)}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >

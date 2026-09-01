@@ -1,6 +1,6 @@
 import { ListFilter } from "../../types/table";
 import axios from "axios";
-import { LinersModel, TransactionNoteModel } from "../../types/request";
+import { TransactionNoteModel } from "../../types/request";
 
 export const getTransactionNote = async (transaction_id: number) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/get-transaction-note/${transaction_id}`;

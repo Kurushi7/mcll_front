@@ -1,6 +1,5 @@
 import { ListFilter } from "../../types/table";
 import axios from "axios";
-import { InvoiceModel } from "../../types/request";
 import { TransformedInvoiceModel } from "../../types/invoiceTypes";
 
 export const getInvoice = async (invoice_id: number) => {

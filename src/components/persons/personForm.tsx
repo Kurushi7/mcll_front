@@ -281,8 +281,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.first_name || ""}
                   value={newPerson.first_name}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 120,
                     },
                   }}
@@ -302,8 +302,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.last_name || ""}
                   value={newPerson.last_name}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 20,
                     },
                   }}
@@ -328,8 +328,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   }}
                   value={newPerson.address_line1}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 100,
                     },
                   }}
@@ -351,8 +351,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.address_line2 || ""}
                   value={newPerson.address_line2}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 100,
                     },
                   }}
@@ -374,8 +374,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.city || ""}
                   value={newPerson.city}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 30,
                     },
                   }}
@@ -417,8 +417,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.phone1 || ""}
                   value={newPerson.phone1}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 15,
                     },
                   }}
@@ -439,8 +439,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.phone2 || ""}
                   value={newPerson.phone2}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 15,
                     },
                   }}
@@ -461,8 +461,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.watsapp_no || ""}
                   value={newPerson.watsapp_no}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 15,
                     },
                   }}
@@ -483,8 +483,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.fax || ""}
                   value={newPerson.fax}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 15,
                     },
                   }}
@@ -506,8 +506,8 @@ const PersonForm = forwardRef<PersonRef, PersonProps>(
                   helperText={errors.email || ""}
                   value={newPerson.email}
                   onChange={handleChange}
-                  InputProps={{
-                    inputProps: {
+                  slotProps={{
+                    htmlInput: {
                       maxLength: 120,
                     },
                   }}

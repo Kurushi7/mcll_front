@@ -489,8 +489,8 @@ const ShipmentVessels: React.FC<ShipmentVesselsProps> = ({
                         helperText={errors.voyage_no || ""}
                         value={shipmentVessels.voyage_no}
                         onChange={handleChange}
-                        InputProps={{
-                          inputProps: {
+                        slotProps={{
+                          htmlInput: {
                             maxLength: 20,
                           },
                         }}

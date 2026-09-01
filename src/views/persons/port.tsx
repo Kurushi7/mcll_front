@@ -158,10 +158,12 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
         onClose={() => onClose()}
         maxWidth="md"
         hideBackdrop={true}
-        PaperProps={{
-          style: {
-            width: "100%",
-            maxHeight: "90vh",
+        slotProps={{
+          paper: {
+            sx: {
+              width: "100%",
+              maxHeight: "90vh",
+            },
           },
         }}
       >
@@ -199,8 +201,8 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                     onChange={(event) =>
                       setNewPort({ ...newPort, name: event.target.value })
                     }
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 20,
                       },
                     }}
@@ -224,8 +226,8 @@ const Port: React.FC<PortProps> = ({ open, onClose, portId }) => {
                     onChange={(event) =>
                       setNewPort({ ...newPort, code: event.target.value })
                     }
-                    InputProps={{
-                      inputProps: {
+                    slotProps={{
+                      htmlInput: {
                         maxLength: 10,
                       },
                     }}

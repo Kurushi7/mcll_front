@@ -13,7 +13,7 @@ import { z } from "zod";
 
 const ImportFile: React.FC<any> = ({ open, onClose }: any) => {
   const [file, setFile] = React.useState<File | null>(null);
-  const [filename, setFilename] = React.useState<string | null>(null);
+  const [filename, _setFilename] = React.useState<string | null>(null);
   const [error, setError] = React.useState("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +67,11 @@ const ImportFile: React.FC<any> = ({ open, onClose }: any) => {
       <DialogContent>
         <Input
           type="file"
-          inputProps={{
-            accept:
-              ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          slotProps={{
+            input: {
+              accept:
+                ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            },
           }}
           onChange={handleFileChange}
         />
