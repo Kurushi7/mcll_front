@@ -28,6 +28,10 @@ import getTheme from "../../theme/themeCustomizations";
 import { currencyList } from "../../composables/constants/currencies";
 import { getRateAtDate } from "../../composables/shippings/Rates";
 import FileUploader from "../../components/processFlow/fileUploader.tsx";
+import {
+  ProcessDocumentModel,
+  updateProcessDocuments,
+} from "../../composables/common/processDocument.tsx";
 
 interface Props {
   shipmentId?: number;
@@ -105,15 +109,16 @@ const TransactionNote: React.FC<Props> = ({
 
     const isValid = validateForm(formSchema, newTransactionNotes, setErrors);
 
-    if (!isValid) {
+    if (!isValid || !shipmentId) {
       return;
     }
 
+    const fileUrls = JSON.stringify(urlList);
     let result: AxiosResponse<any, any> | undefined = undefined;
 
     newTransactionNotes.shipment_id = shipmentId ?? 0;
     newTransactionNotes.shipment_hbl_id = shipmentHblId ?? 0;
-    newTransactionNotes.file_urls = JSON.stringify(urlList);
+    newTransactionNotes.file_urls = fileUrls;
 
     if (newTransactionNotes.transaction_id) {
       result = await updateTransactionNote(newTransactionNotes);
@@ -121,6 +126,9 @@ const TransactionNote: React.FC<Props> = ({
       newTransactionNotes.date_created = new Date().toISOString();
       result = await addTransactionNote(newTransactionNotes);
     }
+
+    //update document process flags
+    await updateProcessDocumentFlags(shipmentId, fileUrls);
 
     onClose(result);
   };
@@ -166,6 +174,38 @@ const TransactionNote: React.FC<Props> = ({
       shipment_hbl_id: transactionRecord.shipment_hbl_id,
       file_urls: transactionRecord.file_urls,
     });
+  };
+
+  const updateProcessDocumentFlags = async (
+    shipment_id: number,
+    file_urls: string,
+  ) => {
+    if (!file_urls) return;
+
+    let documents: ProcessDocumentModel;
+
+    if (newTransactionNotes.type === "debit") {
+      documents = {
+        shipment_id: shipment_id,
+        debit_note_uploaded: !!file_urls,
+      };
+    } else {
+      documents = {
+        shipment_id: shipment_id,
+        credit_note_uploaded: !!file_urls,
+      };
+    }
+
+    const response = await updateProcessDocuments(documents);
+
+    if (response.status && response.status !== 200) {
+      setSnackMessage({
+        message: "Problem updating process document status",
+        severity: "error",
+      });
+      setOpenSnackBar(true);
+      return;
+    }
   };
 
   const getExchangeRate = async (currency: string) => {

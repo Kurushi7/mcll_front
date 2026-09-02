@@ -93,6 +93,13 @@ export default function DynamicFormOverlay({
   const [fileRefList, setFileRefList] = React.useState<
     { shipment_id: number; file_ref: string }[]
   >([]);
+
+  const [selectedFileRef, setSelectedFileRef] = useState<{
+    shipment_id: number;
+    file_ref: string;
+  } | null>(null);
+
+  const [fileRefInput, setFileRefInput] = useState(initialData.file_ref ?? "");
   if (!activeForm) return null;
 
   const findConsignees = async (
@@ -150,8 +157,9 @@ export default function DynamicFormOverlay({
 
     const shipmentList: ShipmentFormModel[] = result.data.data;
 
-    const fileRef: { shipment_id: number; file_ref: string }[] =
-      shipmentList.map((shipment: ShipmentFormModel) => ({
+    const fileRef: { shipment_id: number; file_ref: string }[] = shipmentList
+      .filter((shipment: ShipmentFormModel) => shipment.file_ref)
+      .map((shipment: ShipmentFormModel) => ({
         shipment_id: shipment.shipment_id ?? 0,
         file_ref: shipment.file_ref,
       }));
@@ -223,6 +231,14 @@ export default function DynamicFormOverlay({
       await getShipmentOptions("");
     })();
   }, []);
+
+  useEffect(() => {
+    const saved = fileRefList.find(
+      (option) => option.file_ref === initialData.file_ref,
+    );
+
+    setSelectedFileRef(saved ?? null);
+  }, [fileRefList, initialData.file_ref]);
 
   const renderFields = (columnId: keyof ProcessStepType) => {
     switch (columnId) {
@@ -298,7 +314,7 @@ export default function DynamicFormOverlay({
 
             <div>
               <FormControl
-                sx={{ paddingTop: "4px" }}
+                sx={{ paddingTop: "8px" }}
                 size="small"
                 fullWidth={true}
               >
@@ -319,17 +335,21 @@ export default function DynamicFormOverlay({
                   isOptionEqualToValue={(option, value) =>
                     option.shipment_id === value.shipment_id
                   }
-                  value={
-                    fileRefList.find(
-                      (option) => option.file_ref === initialData.file_ref,
-                    ) ?? null
-                  }
-                  onChange={(event, newValue) =>
-                    handleAutoCompleteChange(event, newValue, "file_ref")
-                  }
-                  onInputChange={(event, newInputValue) =>
-                    getBookingList(event, newInputValue)
-                  }
+                  value={selectedFileRef}
+                  inputValue={fileRefInput}
+                  onChange={async (event, newValue) => {
+                    setSelectedFileRef(newValue);
+                    setFileRefInput(newValue?.file_ref ?? "");
+
+                    await handleAutoCompleteChange(event, newValue, "file_ref");
+                  }}
+                  onInputChange={async (event, newInputValue, reason) => {
+                    setFileRefInput(newInputValue);
+
+                    if (reason === "input") {
+                      await getBookingList(event, newInputValue);
+                    }
+                  }}
                 />
               </FormControl>
             </div>
@@ -501,6 +521,14 @@ export default function DynamicFormOverlay({
                   <span
                     style={{
                       ...statusStyle,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 70,
+                      minHeight: 24,
+                      padding: "3px 8px",
+                      boxSizing: "border-box",
+                      borderRadius: 4,
                       backgroundColor: initialData.documents[check_field]
                         ? "#d1fae5"
                         : "#fef3c7",
@@ -509,7 +537,9 @@ export default function DynamicFormOverlay({
                         : "#92400e",
                     }}
                   >
-                    {initialData.documents[check_field]}
+                    {initialData.documents[check_field]
+                      ? "Cleared"
+                      : "Not Cleared"}
                   </span>
                 </div>
               ))}
@@ -668,31 +698,19 @@ export default function DynamicFormOverlay({
 
   type DocumentField =
     | "debit_note_required"
-    | "debit_note_uploaded"
     | "credit_note_required"
-    | "credit_note_uploaded"
     | "house_bl_required"
-    | "house_bl_uploaded"
     | "master_bl_required"
-    | "master_bl_uploaded"
     | "liner_invoice_required"
-    | "liner_invoice_uploaded"
-    | "cpw_invoice_required"
-    | "cpw_invoice_uploaded";
+    | "cpw_invoice_required";
 
   const documentFields: DocumentField[] = [
     "debit_note_required",
-    "debit_note_uploaded",
     "credit_note_required",
-    "credit_note_uploaded",
     "house_bl_required",
-    "house_bl_uploaded",
     "master_bl_required",
-    "master_bl_uploaded",
     "liner_invoice_required",
-    "liner_invoice_uploaded",
     "cpw_invoice_required",
-    "cpw_invoice_uploaded",
   ] as const;
 
   return (
@@ -755,42 +773,26 @@ export default function DynamicFormOverlay({
             }
 
             if (columnId === "document_entries") {
-              console.log("yoloi", payload);
               payload.documents.debit_note_required = formData.has(
                 "debit_note_required",
-              );
-              payload.documents.debit_note_uploaded = formData.has(
-                "debit_note_uploaded",
               );
               payload.documents.credit_note_required = formData.has(
                 "credit_note_required",
               );
-              payload.documents.credit_note_uploaded = formData.has(
-                "credit_note_uploaded",
-              );
               payload.documents.house_bl_required =
                 formData.has("house_bl_required");
-              payload.documents.house_bl_uploaded =
-                formData.has("house_bl_uploaded");
 
               payload.documents.master_bl_required =
                 formData.has("master_bl_required");
 
-              payload.documents.master_bl_uploaded =
-                formData.has("master_bl_uploaded");
               payload.documents.liner_invoice_required = formData.has(
                 "liner_invoice_required",
               );
-              payload.documents.liner_invoice_uploaded = formData.has(
-                "liner_invoice_uploaded",
-              );
+
               payload.documents.cpw_invoice_required = formData.has(
                 "cpw_invoice_required",
               );
-              payload.documents.cpw_invoice_uploaded = formData.has(
-                "cpw_invoice_uploaded",
-              );
-              console.log("payload", payload);
+
               payload.document_entries =
                 payload.documents.debit_note_uploaded &&
                 payload.documents.cpw_invoice_uploaded &&

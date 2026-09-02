@@ -6,8 +6,8 @@ export interface ProcessDocumentModel {
   shipment_id?: number;
   tas?: number;
   noa?: string;
-  delivery_note_required?: boolean;
-  delivery_note_uploaded?: boolean;
+  debit_note_required?: boolean;
+  debit_note_uploaded?: boolean;
   house_bl_required?: boolean;
   house_bl_uploaded?: boolean;
   master_bl_required?: boolean;
@@ -16,8 +16,8 @@ export interface ProcessDocumentModel {
   liner_invoice_uploaded?: boolean;
   cpw_invoice_required?: boolean;
   cpw_invoice_uploaded?: boolean;
-  credit_invoice_required?: boolean;
-  credit_invoice_uploaded?: boolean;
+  credit_note_required?: boolean;
+  credit_note_uploaded?: boolean;
 }
 
 export const updateProcessDocuments = async (

@@ -19,7 +19,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Axios, AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { z } from "zod";
 import { validateForm } from "../../composables/product/FormValidation";
 import {
@@ -128,10 +128,18 @@ const Invoice: React.FC<Props> = ({
   ) => {
     if (!file_urls) return;
 
-    const documents: ProcessDocumentModel = {
-      shipment_id: shipment_id,
-      liner_invoice_uploaded: !!file_urls,
-    };
+    let documents: ProcessDocumentModel;
+    if (newInvoice.type === "liner") {
+      documents = {
+        shipment_id: shipment_id,
+        liner_invoice_uploaded: !!file_urls,
+      };
+    } else {
+      documents = {
+        shipment_id: shipment_id,
+        cpw_invoice_uploaded: !!file_urls,
+      };
+    }
 
     const response = await updateProcessDocuments(documents);
 
@@ -151,8 +159,6 @@ const Invoice: React.FC<Props> = ({
       event.preventDefault();
 
       if (!shipmentId) return;
-
-      newInvoice.file_urls = JSON.stringify(urlList);
 
       const isValid = validateForm(formSchema, newInvoice, setErrors);
 

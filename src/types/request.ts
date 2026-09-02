@@ -72,6 +72,7 @@ export interface ShipmentModel {
   eta?: string;
   user_id: number;
   group: string;
+  master_bl_urls: string;
 }
 
 export interface ShipmentVesselsModel {
@@ -264,7 +265,7 @@ export interface ShipmentProcessModel {
   eta?: Date;
   shipment_tracking_id?: number;
   clearance_remarks?: string;
-  documents: {
+  documents?: {
     noa?: { url: string; size: number }[];
     tas?: { url: string; size: number }[];
     debit_note_required?: boolean;

@@ -23,6 +23,7 @@ export interface ShipmentFormModel {
   shipper: PersonCountry | null;
   group: string;
   remarks: string;
+  master_bl_urls: string;
 }
 
 export interface HblFormModel {

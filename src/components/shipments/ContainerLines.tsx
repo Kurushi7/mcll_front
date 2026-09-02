@@ -20,10 +20,6 @@ import {
   deleteContainerLine,
   getContainerLinesList,
 } from "../../composables/shippings/ContainerLines";
-import {
-  ContainerLinesModel,
-  UpdateContainerLinesModel,
-} from "../../types/request";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 
@@ -75,6 +71,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "text",
         },
       ],
+      flex: 1,
     },
     {
       field: "no_of_packages",
@@ -105,6 +102,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "number",
         },
       ],
+      flex: 1,
     },
     {
       field: "weight",
@@ -135,6 +133,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "number",
         },
       ],
+      flex: 1,
     },
     {
       field: "measurement",
@@ -157,6 +156,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "text",
         },
       ],
+      flex: 1,
     },
     {
       field: "size",
@@ -187,6 +187,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "number",
         },
       ],
+      flex: 1,
     },
     {
       field: "description",
@@ -209,6 +210,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "text",
         },
       ],
+      flex: 1,
     },
     {
       field: "marks_numbers",
@@ -231,6 +233,7 @@ const ContainerLines: React.FC<Props> = ({
           component: "text",
         },
       ],
+      flex: 1,
     },
     {
       field: "",
@@ -311,7 +314,7 @@ const ContainerLines: React.FC<Props> = ({
   const actions: ButtonList[] = [
     {
       key: "create-container-lines",
-      handleOnClick: (data?: any) => {
+      handleOnClick: (_data?: any) => {
         setOpen(true);
       },
       label: "Create container line",
@@ -359,15 +362,15 @@ const ContainerLines: React.FC<Props> = ({
             horizontal: "left",
           }}
         >
-          <MenuItem onClick={(row) => handleAction("edit")}>Edit</MenuItem>
-          <MenuItem onClick={(row) => handleAction("delete")}>Delete</MenuItem>
+          <MenuItem onClick={(_row) => handleAction("edit")}>Edit</MenuItem>
+          <MenuItem onClick={(_row) => handleAction("delete")}>Delete</MenuItem>
         </Menu>
       </>
     );
   };
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {

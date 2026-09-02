@@ -139,7 +139,7 @@ const HblForm: React.FC<hblProps> = ({
   const [allPersonList, setAllPersonList] = React.useState<PersonCountry[]>([]);
   const [supplierList, setSupplierList] = React.useState<PersonCountry[]>([]);
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
-  const [hblRecords, setHblRecords] = React.useState<HblFormModel[]>([]);
+  const [_hblRecords, setHblRecords] = React.useState<HblFormModel[]>([]);
   const customTheme = createTheme(getTheme());
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [snackMessage, setSnackMessage] = React.useState<{
@@ -152,7 +152,7 @@ const HblForm: React.FC<hblProps> = ({
   const intHblId = 0;
 
   const handleAutoCompleteChange = async (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: any,
     field: string,
   ) => {
@@ -170,7 +170,7 @@ const HblForm: React.FC<hblProps> = ({
   };
 
   const findFromAllPersons = async (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: any,
   ) => {
     if (timeoutId) {
@@ -372,7 +372,7 @@ const HblForm: React.FC<hblProps> = ({
   };
 
   const handleCloseSnackBar = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {

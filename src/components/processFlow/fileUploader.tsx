@@ -199,7 +199,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
   useEffect(() => {
     (async () => {
-      if (!fileValue) return;
+      if (!fileValue) {
+        setSelectedFiles([]);
+        return;
+      }
+
       const loadFiles = async () => {
         let files: { url: string; size: number }[] = [];
         try {
@@ -244,7 +248,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     <div
       className="form-container"
       style={{
-        maxWidth: "420px",
         margin: "20px auto",
         padding: "24px",
         border: "1px solid #ddd",

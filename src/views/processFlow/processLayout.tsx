@@ -259,6 +259,7 @@ const ProcessLayout: React.FC<any> = () => {
 
   const saveShipmentProcess = async () => {
     const ShipmentFlow: ShipmentProcessModel = {
+      documents: {},
       shipment_id: 0,
       client_identification: "pending",
       booking_instructions: "pending",
@@ -527,13 +528,15 @@ const ProcessLayout: React.FC<any> = () => {
         </table>
       </div>
 
-      <DynamicFormOverlay
-        activeForm={processData}
-        onClose={() => setProcessData(null)}
-        onSave={handleSaveFormFields}
-        userList={userList}
-        setProcessData={setProcessData}
-      />
+      {processData && (
+        <DynamicFormOverlay
+          activeForm={processData}
+          onClose={() => setProcessData(null)}
+          onSave={handleSaveFormFields}
+          userList={userList}
+          setProcessData={setProcessData}
+        />
+      )}
 
       {/* Server Pagination Toolbar Footer */}
       <div
