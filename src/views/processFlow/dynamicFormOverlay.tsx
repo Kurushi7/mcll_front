@@ -84,6 +84,7 @@ export default function DynamicFormOverlay({
   const { columnId, initialData } = activeForm;
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
   const [shipmentHbl, setShipmentHbl] = useState<HblFormModel>(blankItem);
+  const [selectedConsignee, setSelectedConsignee] = React.useState<PersonCountry| null>(null)
   const [noaUrlList, setNoaUrlList] = React.useState<
     { url: string; size: number }[]
   >([]);
@@ -91,12 +92,12 @@ export default function DynamicFormOverlay({
     { url: string; size: number }[]
   >([]);
   const [fileRefList, setFileRefList] = React.useState<
-    { shipment_id: number; file_ref: string }[]
+    { shipment_id: number; master_bl_ref: string }[]
   >([]);
 
   const [selectedFileRef, setSelectedFileRef] = useState<{
     shipment_id: number;
-    file_ref: string;
+    master_bl_ref: string;
   } | null>(null);
 
   const [fileRefInput, setFileRefInput] = useState(initialData.file_ref ?? "");
@@ -117,19 +118,22 @@ export default function DynamicFormOverlay({
     setTimeoutId(newTimeoutId);
   };
 
-  const getPersonsOptions = async (allPerson: boolean, term: string) => {
-    const result = await dispatch(fetchPersonOptions({ allPerson, term }));
+    const getPersonsOptions = async (
+        allPerson: boolean,
+        term: string,
+    ): Promise<PersonCountry[]> => {
+        const result = await dispatch(fetchPersonOptions({allPerson, term}));
 
-    if (fetchPersonOptions.fulfilled.match(result)) {
-      if (!result.payload && result.payload !== null) {
-        return;
-      }
+        if (!fetchPersonOptions.fulfilled.match(result)) {
+            return [];
+        }
 
-      const personOptions = result.payload as PersonCountry[];
+        const personOptions = (result.payload ?? []) as PersonCountry[];
 
-      setConsigneeList(personOptions);
+        setConsigneeList(personOptions);
+
+        return personOptions;
     }
-  };
 
   const getShipmentOptions = async (term: string) => {
     const listFilter: ListFilter = {
@@ -143,7 +147,7 @@ export default function DynamicFormOverlay({
 
     if (term) {
       filterItem = {
-        field: "file_ref",
+        field: "master_bl_ref",
         value: `${term}`,
         operator: ListConstants.CONTAINS,
         logicOperator: "and",
@@ -157,11 +161,11 @@ export default function DynamicFormOverlay({
 
     const shipmentList: ShipmentFormModel[] = result.data.data;
 
-    const fileRef: { shipment_id: number; file_ref: string }[] = shipmentList
-      .filter((shipment: ShipmentFormModel) => shipment.file_ref)
+    const fileRef: { shipment_id: number; master_bl_ref: string }[] = shipmentList
+      .filter((shipment: ShipmentFormModel) => shipment.master_bl_ref)
       .map((shipment: ShipmentFormModel) => ({
         shipment_id: shipment.shipment_id ?? 0,
-        file_ref: shipment.file_ref,
+          master_bl_ref: shipment.master_bl_ref,
       }));
 
     setFileRefList(fileRef);
@@ -187,10 +191,7 @@ export default function DynamicFormOverlay({
     newValue: any,
     field: string,
   ) => {
-    setShipmentHbl((prevShipment) => ({
-      ...prevShipment,
-      [field]: newValue,
-    }));
+    setSelectedConsignee(newValue);
   };
 
   const documentList = [
@@ -226,19 +227,32 @@ export default function DynamicFormOverlay({
     },
   ];
 
-  useEffect(() => {
-    (async () => {
-      await getShipmentOptions("");
-    })();
-  }, []);
+    useEffect(() => {
+        (async () => {
+            await getPersonsOptions(true, "");
+        })();
+    }, []);
+
+    useEffect(() => {
+
+        if (!initialData?.client_id || !consigneeList.length) {
+            return;
+        }
+
+        const consignee = consigneeList.find(
+            (person) => person.person_id === initialData.client_id
+        );
+
+        setSelectedConsignee(consignee ?? null);
+    }, [initialData?.client_id, consigneeList]);
 
   useEffect(() => {
     const saved = fileRefList.find(
-      (option) => option.file_ref === initialData.file_ref,
+      (option) => option.master_bl_ref === initialData.master_bl_ref,
     );
 
     setSelectedFileRef(saved ?? null);
-  }, [fileRefList, initialData.file_ref]);
+  }, [fileRefList, initialData.master_bl_ref]);
 
   const renderFields = (columnId: keyof ProcessStepType) => {
     switch (columnId) {
@@ -267,7 +281,7 @@ export default function DynamicFormOverlay({
                 `${option.first_name} ${option.last_name}`
               }
               getOptionKey={(option) => option.person_id}
-              value={shipmentHbl.consignee}
+              value={selectedConsignee ?? null}
               onChange={(event, newValue) =>
                 handleAutoCompleteChange(event, newValue, "consignee")
               }
@@ -318,20 +332,20 @@ export default function DynamicFormOverlay({
                 size="small"
                 fullWidth={true}
               >
-                <FormLabel htmlFor="file_ref">Booking reference</FormLabel>
+                <FormLabel htmlFor="master_bl_ref">Booking reference</FormLabel>
                 <Autocomplete
-                  id="file_ref"
+                  id="master_bl_ref"
                   size="small"
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       variant="standard"
-                      name="file_ref"
+                      name="master_bl_ref"
                       placeholder="Enter the booking ref"
                     />
                   )}
                   options={fileRefList}
-                  getOptionLabel={(option) => option.file_ref}
+                  getOptionLabel={(option) => option.master_bl_ref}
                   isOptionEqualToValue={(option, value) =>
                     option.shipment_id === value.shipment_id
                   }
@@ -339,7 +353,7 @@ export default function DynamicFormOverlay({
                   inputValue={fileRefInput}
                   onChange={async (event, newValue) => {
                     setSelectedFileRef(newValue);
-                    setFileRefInput(newValue?.file_ref ?? "");
+                    setFileRefInput(newValue?.master_bl_ref ?? "");
 
                     await handleAutoCompleteChange(event, newValue, "file_ref");
                   }}
@@ -739,11 +753,11 @@ export default function DynamicFormOverlay({
 
             if (columnId === "client_identification") {
               payload.client_id =
-                payload.client_id ?? shipmentHbl.consignee?.person_id;
+                selectedConsignee?.person_id;
               payload.client_name =
-                shipmentHbl.consignee?.first_name +
+                selectedConsignee?.first_name +
                 " " +
-                shipmentHbl.consignee?.last_name;
+                  selectedConsignee?.last_name;
               payload.client_identification =
                 initialData.client_identification === "pending"
                   ? "completed"

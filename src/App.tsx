@@ -78,12 +78,12 @@ const App: React.FC = () => {
               path="freight-quote-staging"
               element={<FreightQuoteStagingList />}
             />
-          </Route>
 
-          <Route
-            path="process-flow"
-            element={<ProcessLayout />}
-            />
+              <Route
+                  path="process-flow"
+                  element={<ProcessLayout />}
+              />
+          </Route>
 
           {/* Login route, redirect to home if authenticated */}
           <Route path="/login" element={<LoginRedirect />} />

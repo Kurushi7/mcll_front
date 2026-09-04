@@ -259,7 +259,6 @@ const ProcessLayout: React.FC<any> = () => {
 
   const saveShipmentProcess = async () => {
     const ShipmentFlow: ShipmentProcessModel = {
-      documents: {},
       shipment_id: 0,
       client_identification: "pending",
       booking_instructions: "pending",
