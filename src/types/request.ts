@@ -164,6 +164,7 @@ export interface ShipmentHblModel {
   notify_party_id2: number;
   deleted: boolean;
   deleted_at?: string;
+  file_urls: string;
 }
 
 export interface TransactionNoteModel {
@@ -265,6 +266,11 @@ export interface ShipmentProcessModel {
   eta?: Date;
   shipment_tracking_id?: number;
   clearance_remarks?: string;
+  de_user_id?: number;
+  t_user_id?: number;
+  cc_user_id?: number;
+  dh_user_id?: number;
+  bd_user_id?: number;
   documents?: {
     noa?: { url: string; size: number }[];
     tas?: { url: string; size: number }[];

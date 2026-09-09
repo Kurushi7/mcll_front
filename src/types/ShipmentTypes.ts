@@ -42,6 +42,7 @@ export interface HblFormModel {
   unstuffing_place: string;
   notify_party1: PersonCountry | null;
   notify_party2: PersonCountry | null;
+  file_urls?: string;
 }
 
 export interface ShipmentHblFormModel {

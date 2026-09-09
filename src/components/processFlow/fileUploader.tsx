@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Snackbar, SnackbarCloseReason } from "@mui/material";
+import {
+  Alert,
+  IconButton,
+  Snackbar,
+  SnackbarCloseReason,
+  Tooltip,
+} from "@mui/material";
 import {
   getFile,
   getSignedUrl,
@@ -8,6 +14,11 @@ import {
 } from "../../composables/uploader/Uploader.tsx";
 import DocumentPreview from "../common/DocumentPreview.tsx";
 import { isValidUrl } from "../../composables/common/fileFunctions.tsx";
+import {
+  CachedOutlined,
+  DeleteOutlined,
+  VisibilityOutlined,
+} from "@mui/icons-material";
 
 type FileUploaderProps = {
   fileValue: string;
@@ -197,6 +208,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     setPreviewOpen(preview);
   };
 
+  const getFileName = (url: string | null) => {
+    if (!url) return "";
+    return url.split("\\").pop() || "";
+  };
+
   useEffect(() => {
     (async () => {
       if (!fileValue) {
@@ -269,7 +285,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             style={{
               fontSize: "0.85rem",
               color: "#666",
-              marginBottom: "8px",
+              marginBottom: "4px",
               fontWeight: 600,
             }}
           >
@@ -280,8 +296,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             <div
               key={file.file ? `${file.file.name}-${index}` : `${index}`}
               style={{
-                padding: "12px",
-                marginBottom: "8px",
+                padding: "2px",
+                marginBottom: "4px",
                 border: "1px solid #e0e0e0",
                 borderRadius: "8px",
                 backgroundColor: "#f8f9fa",
@@ -319,87 +335,67 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                       }}
                     >
                       📄
-                      {file.file?.name ?? file.url ?? "Problem getting file"}
-                    </div>
+                      {file.file?.name ??
+                        getFileName(file.url) ??
+                        "Problem getting file"}
+                      {/* File actions */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <Tooltip title="Open">
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              if (file.file) {
+                                await handleOpenPreview(file.file, "", true);
+                              } else if (file.url) {
+                                await handleOpenPreview(null, file.url, true);
+                              }
+                            }}
+                            disabled={mutation.isPending}
+                            sx={{
+                              color: "#1976d2",
+                              padding: "3px",
+                            }}
+                          >
+                            <VisibilityOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
 
-                    <div
-                      style={{
-                        marginLeft: "6px",
-                        fontSize: "0.8rem",
-                        color: "#666",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {file.file
-                        ? (file.file.size / 1024 / 1024).toFixed(2)
-                        : (file.size ?? 0)}
-                      MB
+                        <Tooltip title="Replace">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleReplaceFile(index)}
+                            disabled={mutation.isPending}
+                            sx={{
+                              color: "#1976d2",
+                              padding: "3px",
+                            }}
+                          >
+                            <CachedOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="remove">
+                          <IconButton
+                            size="small"
+                            onClick={() => removeFile(index)}
+                            disabled={mutation.isPending}
+                            sx={{
+                              color: "#d32f2f",
+                              padding: "3px",
+                            }}
+                          >
+                            <DeleteOutlined fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
-
-              {/* File actions */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "8px",
-                  marginTop: "10px",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (file.file) {
-                      await handleOpenPreview(file.file, "", true);
-                    } else if (file.url) {
-                      await handleOpenPreview(null, file.url, true);
-                    }
-                  }}
-                  style={{
-                    border: "1px solid #1976d2",
-                    borderRadius: "6px",
-                    backgroundColor: "white",
-                    color: "#1976d2",
-                    padding: "6px 12px",
-                    cursor: mutation.isPending ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Open
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleReplaceFile(index)}
-                  disabled={mutation.isPending}
-                  style={{
-                    border: "1px solid #1976d2",
-                    borderRadius: "6px",
-                    backgroundColor: "white",
-                    color: "#1976d2",
-                    padding: "6px 12px",
-                    cursor: mutation.isPending ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Replace
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => removeFile(index)}
-                  disabled={mutation.isPending}
-                  style={{
-                    border: "1px solid #d32f2f",
-                    borderRadius: "6px",
-                    backgroundColor: "white",
-                    color: "#d32f2f",
-                    padding: "6px 12px",
-                    cursor: mutation.isPending ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Remove
-                </button>
               </div>
             </div>
           ))}

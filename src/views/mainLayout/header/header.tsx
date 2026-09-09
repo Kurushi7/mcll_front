@@ -8,13 +8,16 @@ import {
   Toolbar,
   useTheme,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faUser } from "@fortawesome/free-solid-svg-icons";
+import { getNotificationList } from "../../../composables/notifications/notifications.tsx";
+import { FilterItem, ListFilter } from "../../../types/table.ts";
+import ListConstants from "../../../composables/constants/table.ts";
+import { notification } from "../../../types/notification.ts";
 
 export const Header = () => {
   const theme = useTheme();
-  const anchorRef = useRef(null);
   const [notifBadge, setNotifBadge] = useState(0);
   const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null);
   const [notifAnchor, setNotifAnchor] = React.useState<null | HTMLElement>(
@@ -24,6 +27,7 @@ export const Header = () => {
   const isNotifMenuOpen = Boolean(notifAnchor);
   const menuId = "primary-account-menu";
   const notifMenuId = "primary-account-notif-menu";
+  const [notifications, setNotifications] = React.useState<notification[]>([]);
 
   const handleProfileMenuOpen = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -70,10 +74,41 @@ export const Header = () => {
       open={isNotifMenuOpen}
       onClose={handleNotifMenuClose}
     >
-      <MenuItem>Notif 1</MenuItem>
-      <MenuItem>Notif 2</MenuItem>
+      {notifications &&
+        notifications.map((item) => (
+          <MenuItem key={item.Notification_Id}>{item.message}</MenuItem>
+        ))}
+      ;
     </Menu>
   );
+
+  useEffect(() => {
+    (async () => {
+      const filterItem: FilterItem[] = [
+        {
+          field: "false",
+          value: "is_read",
+          operator: ListConstants.EQUALS,
+          logicOperator: "and",
+        },
+      ];
+
+      const filterList: ListFilter = {
+        limit: 0,
+        offset: 0,
+        filter: filterItem,
+        sort: [],
+      };
+
+      const response = await getNotificationList(filterList);
+
+      if (!response || !response.data) return;
+
+      const notifications: notification[] = response?.data?.data;
+      setNotifications(notifications);
+      setNotifBadge(response.data.total);
+    })();
+  }, []);
 
   return (
     <Box
@@ -93,7 +128,7 @@ export const Header = () => {
       >
         <Toolbar>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }} gap={2}>
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
             <IconButton
               size="small"
               aria-label="notif"

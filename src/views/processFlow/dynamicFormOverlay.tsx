@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import FileUploader from "../../components/processFlow/fileUploader.tsx";
 import {
   Autocomplete,
@@ -84,29 +84,27 @@ export default function DynamicFormOverlay({
   const { columnId, initialData } = activeForm;
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
   const [shipmentHbl, setShipmentHbl] = useState<HblFormModel>(blankItem);
-  const [selectedConsignee, setSelectedConsignee] = React.useState<PersonCountry| null>(null)
+  const [selectedConsignee, setSelectedConsignee] =
+    React.useState<PersonCountry | null>(null);
   const [noaUrlList, setNoaUrlList] = React.useState<
     { url: string; size: number }[]
   >([]);
   const [tasUrlList, setTasUrlList] = React.useState<
     { url: string; size: number }[]
   >([]);
-  const [fileRefList, setFileRefList] = React.useState<
+  const [masterBlRefList, setMasterBlRefList] = React.useState<
     { shipment_id: number; master_bl_ref: string }[]
   >([]);
 
-  const [selectedFileRef, setSelectedFileRef] = useState<{
+  const [selectedMasterBlRef, setSelectedMasterBlRef] = useState<{
     shipment_id: number;
     master_bl_ref: string;
   } | null>(null);
+  const consigneeInitialized = useRef(false);
 
-  const [fileRefInput, setFileRefInput] = useState(initialData.file_ref ?? "");
   if (!activeForm) return null;
 
-  const findConsignees = async (
-    _event: React.SyntheticEvent,
-    newValue: any,
-  ) => {
+  const findConsignees = (_event: React.SyntheticEvent, newValue: any) => {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
@@ -118,22 +116,22 @@ export default function DynamicFormOverlay({
     setTimeoutId(newTimeoutId);
   };
 
-    const getPersonsOptions = async (
-        allPerson: boolean,
-        term: string,
-    ): Promise<PersonCountry[]> => {
-        const result = await dispatch(fetchPersonOptions({allPerson, term}));
+  const getPersonsOptions = async (
+    allPerson: boolean,
+    term: string,
+  ): Promise<PersonCountry[]> => {
+    const result = await dispatch(fetchPersonOptions({ allPerson, term }));
 
-        if (!fetchPersonOptions.fulfilled.match(result)) {
-            return [];
-        }
-
-        const personOptions = (result.payload ?? []) as PersonCountry[];
-
-        setConsigneeList(personOptions);
-
-        return personOptions;
+    if (!fetchPersonOptions.fulfilled.match(result)) {
+      return [];
     }
+
+    const personOptions = (result.payload ?? []) as PersonCountry[];
+
+    setConsigneeList(personOptions);
+
+    return personOptions;
+  };
 
   const getShipmentOptions = async (term: string) => {
     const listFilter: ListFilter = {
@@ -161,14 +159,15 @@ export default function DynamicFormOverlay({
 
     const shipmentList: ShipmentFormModel[] = result.data.data;
 
-    const fileRef: { shipment_id: number; master_bl_ref: string }[] = shipmentList
-      .filter((shipment: ShipmentFormModel) => shipment.master_bl_ref)
-      .map((shipment: ShipmentFormModel) => ({
-        shipment_id: shipment.shipment_id ?? 0,
+    const masterBlRef: { shipment_id: number; master_bl_ref: string }[] =
+      shipmentList
+        .filter((shipment: ShipmentFormModel) => shipment.master_bl_ref)
+        .map((shipment: ShipmentFormModel) => ({
+          shipment_id: shipment.shipment_id ?? 0,
           master_bl_ref: shipment.master_bl_ref,
-      }));
+        }));
 
-    setFileRefList(fileRef);
+    setMasterBlRefList(masterBlRef);
   };
 
   const getBookingList = async (
@@ -186,12 +185,18 @@ export default function DynamicFormOverlay({
     setTimeoutId(newTimeoutId);
   };
 
-  const handleAutoCompleteChange = async (
+  const handleConsigneeAutoCompleteChange = async (
     _event: React.SyntheticEvent,
     newValue: any,
-    field: string,
   ) => {
     setSelectedConsignee(newValue);
+  };
+
+  const handleMasterBlAutoCompleteChange = async (
+    _event: React.SyntheticEvent,
+    newValue: any,
+  ) => {
+    setSelectedMasterBlRef(newValue);
   };
 
   const documentList = [
@@ -227,32 +232,43 @@ export default function DynamicFormOverlay({
     },
   ];
 
-    useEffect(() => {
-        (async () => {
-            await getPersonsOptions(true, "");
-        })();
-    }, []);
-
-    useEffect(() => {
-
-        if (!initialData?.client_id || !consigneeList.length) {
-            return;
-        }
-
-        const consignee = consigneeList.find(
-            (person) => person.person_id === initialData.client_id
-        );
-
-        setSelectedConsignee(consignee ?? null);
-    }, [initialData?.client_id, consigneeList]);
+  useEffect(() => {
+    (async () => {
+      await getPersonsOptions(true, "");
+      await getShipmentOptions("");
+    })();
+  }, []);
 
   useEffect(() => {
-    const saved = fileRefList.find(
-      (option) => option.master_bl_ref === initialData.master_bl_ref,
+    if (
+      consigneeInitialized.current ||
+      !initialData?.client_id ||
+      !consigneeList.length
+    ) {
+      return;
+    }
+
+    const consignee = consigneeList.find(
+      (person) => person.person_id === initialData.client_id,
     );
 
-    setSelectedFileRef(saved ?? null);
-  }, [fileRefList, initialData.master_bl_ref]);
+    if (consignee) {
+      setSelectedConsignee(consignee ?? null);
+    }
+    consigneeInitialized.current = true;
+  }, [initialData?.client_id, consigneeList]);
+
+  useEffect(() => {
+    if (!initialData?.master_bl_ref || !masterBlRefList.length) {
+      return;
+    }
+
+    const saved = masterBlRefList.find((option) => {
+      return option.master_bl_ref === initialData.master_bl_ref;
+    });
+
+    setSelectedMasterBlRef(saved ?? null);
+  }, [masterBlRefList, initialData.master_bl_ref]);
 
   const renderFields = (columnId: keyof ProcessStepType) => {
     switch (columnId) {
@@ -281,13 +297,18 @@ export default function DynamicFormOverlay({
                 `${option.first_name} ${option.last_name}`
               }
               getOptionKey={(option) => option.person_id}
+              isOptionEqualToValue={(option, value) =>
+                option.person_id === value.person_id
+              }
               value={selectedConsignee ?? null}
               onChange={(event, newValue) =>
-                handleAutoCompleteChange(event, newValue, "consignee")
+                handleConsigneeAutoCompleteChange(event, newValue)
               }
-              onInputChange={(event, newInputValue) =>
-                findConsignees(event, newInputValue)
-              }
+              onInputChange={(event, newInputValue, reason) => {
+                if (reason === "input") {
+                  findConsignees(event, newInputValue);
+                }
+              }}
             />
           </>
         );
@@ -344,22 +365,16 @@ export default function DynamicFormOverlay({
                       placeholder="Enter the booking ref"
                     />
                   )}
-                  options={fileRefList}
+                  options={masterBlRefList}
                   getOptionLabel={(option) => option.master_bl_ref}
                   isOptionEqualToValue={(option, value) =>
                     option.shipment_id === value.shipment_id
                   }
-                  value={selectedFileRef}
-                  inputValue={fileRefInput}
+                  value={selectedMasterBlRef ?? null}
                   onChange={async (event, newValue) => {
-                    setSelectedFileRef(newValue);
-                    setFileRefInput(newValue?.master_bl_ref ?? "");
-
-                    await handleAutoCompleteChange(event, newValue, "file_ref");
+                    await handleMasterBlAutoCompleteChange(event, newValue);
                   }}
                   onInputChange={async (event, newInputValue, reason) => {
-                    setFileRefInput(newInputValue);
-
                     if (reason === "input") {
                       await getBookingList(event, newInputValue);
                     }
@@ -752,12 +767,11 @@ export default function DynamicFormOverlay({
             });
 
             if (columnId === "client_identification") {
-              payload.client_id =
-                selectedConsignee?.person_id;
+              payload.client_id = selectedConsignee?.person_id;
               payload.client_name =
                 selectedConsignee?.first_name +
                 " " +
-                  selectedConsignee?.last_name;
+                selectedConsignee?.last_name;
               payload.client_identification =
                 initialData.client_identification === "pending"
                   ? "completed"

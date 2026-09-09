@@ -1,6 +1,6 @@
 export interface notification {
-  Notification_Id: string;
-  User_id: string;
+  notification_Id?: string;
+  user_id: number;
   message: string;
   type: string;
   is_read: boolean;
@@ -8,8 +8,8 @@ export interface notification {
 }
 
 export interface UpdateNotification {
-  Notification_Id: string;
-  User_id?: string;
+  notification_Id?: string;
+  user_id?: number;
   message?: string;
   type?: string;
   is_read?: boolean;

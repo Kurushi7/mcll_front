@@ -22,6 +22,9 @@ import DynamicFormOverlay, { ProcessStepType } from "./dynamicFormOverlay.tsx";
 import { ShipmentProcessModel } from "../../types/request.ts";
 import { Alert, Button, Snackbar } from "@mui/material";
 import { getAllUsers } from "../../composables/users.tsx";
+import { saveNotifications } from "../../store/notifications/notification.ts";
+import { notification } from "../../types/notification.ts";
+import { useAppDispatch } from "../../store/store.ts";
 
 interface ProcessRow {
   shipment_process_id: number;
@@ -47,11 +50,11 @@ interface ProcessRow {
   delivery_note: string;
   arrival_date: Date;
   eta: Date;
-  de_user_id: number;
-  t_user_id: number;
-  cc_user_id: number;
-  dh_user_id: number;
-  bd_user_id: number;
+  de_user_id?: number;
+  t_user_id?: number;
+  cc_user_id?: number;
+  dh_user_id?: number;
+  bd_user_id?: number;
 }
 
 const columnHelper = createColumnHelper<ProcessRow>();
@@ -72,6 +75,7 @@ const ProcessLayout: React.FC<any> = () => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [userList, setUserList] = useState([]);
+  const dispatch = useAppDispatch();
 
   const [processData, setProcessData] = useState<{
     rowId: number;
@@ -212,9 +216,54 @@ const ProcessLayout: React.FC<any> = () => {
     }
   };
 
+  type UserIdField =
+    | "t_user_id"
+    | "de_user_id"
+    | "cc_user_id"
+    | "dh_user_id"
+    | "bd_user_id";
+
+  const fieldList: { field: UserIdField }[] = [
+    { field: "t_user_id" },
+    { field: "de_user_id" },
+    { field: "cc_user_id" },
+    { field: "dh_user_id" },
+    { field: "bd_user_id" },
+  ];
+
+  const handleSendNotifications = async (
+    columnId: keyof ProcessStepType,
+    formPayload: Partial<ShipmentProcessModel>,
+  ) => {
+    if (columnId === "booking_instructions") {
+      const notifList: notification[] = [];
+
+      fieldList.map((record) => {
+        const userId = formPayload[record.field];
+        if (userId === undefined) return;
+        const notif: notification = {
+          user_id: userId,
+          message: `Your have been assigned shipment process for ref ${formPayload.booking_ref}`,
+          type: "process",
+          is_read: false,
+          read_at: new Date().toISOString().split("T")[0],
+        };
+
+        notifList.push(notif);
+      });
+
+      if (notifList.length > 0) {
+        const result = await dispatch(saveNotifications(notifList));
+        if (!saveNotifications.fulfilled.match(result)) {
+          return false;
+        }
+      }
+    }
+  };
+
   const handleSaveFormFields = async (
     rowId: number,
-    _columnId: keyof ProcessStepType,
+    columnId: keyof ProcessStepType,
     formPayload: Partial<ShipmentProcessModel>,
   ) => {
     const databasePayload = {
@@ -233,6 +282,8 @@ const ProcessLayout: React.FC<any> = () => {
       };
       await fetchShippingFlows(standardizedParams); // Reload table data to show the updates
       setProcessData(null); // Close the form modal
+
+      await handleSendNotifications(columnId, formPayload);
     }
   };
 

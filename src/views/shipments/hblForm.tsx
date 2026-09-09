@@ -34,6 +34,7 @@ import { ShipmentHblModel } from "../../types/request";
 import CardTitle from "../../components/global/Card/CardTitle";
 import { UpdateShipmentModel } from "../../types/updateRequest";
 import { useNavigate } from "react-router-dom";
+import FileUploader from "../../components/processFlow/fileUploader.tsx";
 
 interface hblProps {
   pShipmentId?: number;
@@ -184,6 +185,10 @@ const HblForm: React.FC<hblProps> = ({
     setTimeoutId(newTimeoutId);
   };
 
+  const [urlList, setUrlList] = React.useState<{ url: string; size: number }[]>(
+    [],
+  );
+
   const getPersonsOptions = async (allPerson: boolean, term: string) => {
     const result = await dispatch(fetchPersonOptions({ allPerson, term }));
 
@@ -275,6 +280,7 @@ const HblForm: React.FC<hblProps> = ({
       unstuffing_place: hblFormResult.unstuffing_place,
       notify_party1: hblFormResult.notify_party1,
       notify_party2: hblFormResult.notify_party2,
+      file_urls: hblFormResult.file_urls,
     });
 
     if (!cloneRecord) {
@@ -313,6 +319,7 @@ const HblForm: React.FC<hblProps> = ({
       notify_party_id1: shipmentHbl.notify_party1?.person_id ?? 0,
       notify_party_id2: shipmentHbl.notify_party2?.person_id ?? 0,
       deleted: false,
+      file_urls: shipmentHbl.file_urls ?? "",
     };
 
     if (clone) {
@@ -336,6 +343,7 @@ const HblForm: React.FC<hblProps> = ({
         notify_party_id1: shipmentHbl.notify_party1?.person_id ?? 0,
         notify_party_id2: shipmentHbl.notify_party2?.person_id ?? 0,
         deleted: false,
+        file_urls: shipmentHbl.file_urls ?? "",
       };
       result = await updateShipmentHbl(updateHblRecord);
     } else {
@@ -425,202 +433,208 @@ const HblForm: React.FC<hblProps> = ({
         </CardTitle>
         <div style={{ paddingTop: "16px", paddingLeft: "16px" }}>
           <Grid container spacing={2}>
-            <Grid size={5}>
-              <FormLabel htmlFor="hbl_no">Hbl no</FormLabel>
-              <TextField
-                id="hbl_no"
-                autoFocus
-                size="small"
-                fullWidth
-                required
-                color={errors.hbl_no ? "error" : "primary"}
-                error={!!errors.hbl_no}
-                helperText={errors.hbl_no || ""}
-                value={shipmentHbl.hbl_no}
-                onChange={handleChange}
-                slotProps={{
-                  htmlInput: {
-                    maxLength: 20,
-                  },
-                }}
-              />
-            </Grid>
-            <Grid size={5}>
-              <FormLabel htmlFor="movement_type">Movement type</FormLabel>
-              <Select
-                id="movement_type"
-                labelId="movement_type"
-                value={shipmentHbl.movement_type}
-                onChange={handleSelectChange}
-                name="movement_type"
-                size="small"
-                fullWidth
-              >
-                {movementsOptions &&
-                  movementsOptions.map((option: any, index: number) => {
-                    return (
-                      <MenuItem key={index} value={option.id}>
-                        {option.label}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-            </Grid>
-            <Grid size={2}></Grid>
-
-            <Grid size={5}>
-              <FormLabel htmlFor="shipper">Shipper</FormLabel>
-              <Autocomplete
-                id="shipper"
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    placeholder="Type a supplier name"
-                  />
-                )}
-                options={supplierList}
-                getOptionLabel={(option) =>
-                  `${option.first_name} ${option.last_name}`
-                }
-                getOptionKey={(option) => option.person_id}
-                value={shipmentHbl.shipper}
-                onChange={(event, newValue) =>
-                  handleAutoCompleteChange(event, newValue, "shipper")
-                }
-              />
-            </Grid>
-            <Grid size={5}>
-              <FormLabel htmlFor="delivery_agent">Delivery agent</FormLabel>
-              <Autocomplete
-                id="delivery_agent1"
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    placeholder="Which agent to deliver to"
-                  />
-                )}
-                options={allPersonList}
-                getOptionLabel={(option) =>
-                  `${option.first_name} ${option.last_name}`
-                }
-                getOptionKey={(option) => option.person_id}
-                value={shipmentHbl.delivery_agent}
-                onChange={(event, newValue) =>
-                  handleAutoCompleteChange(event, newValue, "delivery_agent")
-                }
-                onInputChange={(event, newInputValue) =>
-                  findFromAllPersons(event, newInputValue)
-                }
-              />
-              {errors.delivery_agent && <span>{errors.delivery_agent}</span>}
-            </Grid>
-            <Grid size={2}></Grid>
-
-            <Grid size={5}>
-              <FormLabel htmlFor="consignee">Consignee</FormLabel>
-              <Autocomplete
-                id="consignee"
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    placeholder="Type a consignee name"
-                  />
-                )}
-                options={consigneeList}
-                getOptionLabel={(option) =>
-                  `${option.first_name} ${option.last_name}`
-                }
-                getOptionKey={(option) => option.person_id}
-                value={shipmentHbl.consignee}
-                onChange={(event, newValue) =>
-                  handleAutoCompleteChange(event, newValue, "consignee")
-                }
-              />
-              {errors.consignee && <span>{errors.consignee}</span>}
-            </Grid>
-
-            <Grid size={5}>
-              <FormLabel htmlFor="unstuffing_place">Unstuffing place</FormLabel>
-              <TextField
-                id="unstuffing_place"
-                autoFocus
-                size="small"
-                fullWidth
-                required
-                onChange={handleChange}
-                value={shipmentHbl.unstuffing_place}
-                slotProps={{
-                  htmlInput: {
-                    maxLength: 30,
-                  },
-                }}
-              />
-            </Grid>
-
-            <Grid size={5}>
-              <FormLabel htmlFor="notify_party1">Notify party 1</FormLabel>
-              <Autocomplete
-                id="notify_party1"
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    placeholder="Which party to notify"
-                  />
-                )}
-                options={consigneeList}
-                getOptionLabel={(option) =>
-                  `${option.first_name} ${option.last_name}`
-                }
-                getOptionKey={(option) => option.person_id}
-                value={shipmentHbl.notify_party1}
-                onChange={(event, newValue) =>
-                  handleAutoCompleteChange(event, newValue, "notify_party1")
-                }
-              />
-            </Grid>
-            <Grid size={5}>
-              <FormLabel htmlFor="notify_party2">Notify party 2</FormLabel>
-              <Autocomplete
-                id="notify_party2"
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    placeholder="Which party to notify"
-                  />
-                )}
-                options={consigneeList}
-                getOptionLabel={(option) =>
-                  `${option.first_name} ${option.last_name}`
-                }
-                getOptionKey={(option) => option.person_id}
-                value={shipmentHbl.notify_party2}
-                onChange={(event, newValue) =>
-                  handleAutoCompleteChange(event, newValue, "notify_party2")
-                }
-              />
-            </Grid>
-            <Grid size={2} />
-
-            <Grid size={10} sx={{ pt: 2, mb: 3 }}>
-              {shipmentHblId && !clone && (
-                <ContainerLines
-                  shipmentHblId={shipmentHblId}
-                  reloadData={reloadContainerLines}
-                  setReloadData={setReloadContainerLines}
+            <Grid size={8}>
+              <Grid size={4}>
+                <FormLabel htmlFor="hbl_no">Hbl no</FormLabel>
+                <TextField
+                  id="hbl_no"
+                  autoFocus
+                  size="small"
+                  fullWidth
+                  required
+                  color={errors.hbl_no ? "error" : "primary"}
+                  error={!!errors.hbl_no}
+                  helperText={errors.hbl_no || ""}
+                  value={shipmentHbl.hbl_no}
+                  onChange={handleChange}
+                  slotProps={{
+                    htmlInput: {
+                      maxLength: 20,
+                    },
+                  }}
                 />
-              )}
+              </Grid>
+              <Grid size={4}>
+                <FormLabel htmlFor="movement_type">Movement type</FormLabel>
+                <Select
+                  id="movement_type"
+                  labelId="movement_type"
+                  value={shipmentHbl.movement_type}
+                  onChange={handleSelectChange}
+                  name="movement_type"
+                  size="small"
+                  fullWidth
+                >
+                  {movementsOptions &&
+                    movementsOptions.map((option: any, index: number) => {
+                      return (
+                        <MenuItem key={index} value={option.id}>
+                          {option.label}
+                        </MenuItem>
+                      );
+                    })}
+                </Select>
+              </Grid>
+              <Grid size={4}>
+                <FormLabel htmlFor="shipper">Shipper</FormLabel>
+                <Autocomplete
+                  id="shipper"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      placeholder="Type a supplier name"
+                    />
+                  )}
+                  options={supplierList}
+                  getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name}`
+                  }
+                  getOptionKey={(option) => option.person_id}
+                  value={shipmentHbl.shipper}
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "shipper")
+                  }
+                />
+              </Grid>
+
+              <Grid size={4}>
+                <FormLabel htmlFor="delivery_agent">Delivery agent</FormLabel>
+                <Autocomplete
+                  id="delivery_agent1"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      placeholder="Which agent to deliver to"
+                    />
+                  )}
+                  options={allPersonList}
+                  getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name}`
+                  }
+                  getOptionKey={(option) => option.person_id}
+                  value={shipmentHbl.delivery_agent}
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "delivery_agent")
+                  }
+                  onInputChange={(event, newInputValue) =>
+                    findFromAllPersons(event, newInputValue)
+                  }
+                />
+                {errors.delivery_agent && <span>{errors.delivery_agent}</span>}
+              </Grid>
+              <Grid size={4}>
+                <FormLabel htmlFor="consignee">Consignee</FormLabel>
+                <Autocomplete
+                  id="consignee"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      placeholder="Type a consignee name"
+                    />
+                  )}
+                  options={consigneeList}
+                  getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name}`
+                  }
+                  getOptionKey={(option) => option.person_id}
+                  value={shipmentHbl.consignee}
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "consignee")
+                  }
+                />
+                {errors.consignee && <span>{errors.consignee}</span>}
+              </Grid>
+              <Grid size={4}>
+                <FormLabel htmlFor="unstuffing_place">
+                  Unstuffing place
+                </FormLabel>
+                <TextField
+                  id="unstuffing_place"
+                  autoFocus
+                  size="small"
+                  fullWidth
+                  required
+                  onChange={handleChange}
+                  value={shipmentHbl.unstuffing_place}
+                  slotProps={{
+                    htmlInput: {
+                      maxLength: 30,
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid size={4}>
+                <FormLabel htmlFor="notify_party1">Notify party 1</FormLabel>
+                <Autocomplete
+                  id="notify_party1"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      placeholder="Which party to notify"
+                    />
+                  )}
+                  options={consigneeList}
+                  getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name}`
+                  }
+                  getOptionKey={(option) => option.person_id}
+                  value={shipmentHbl.notify_party1}
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "notify_party1")
+                  }
+                />
+              </Grid>
+              <Grid size={4}>
+                <FormLabel htmlFor="notify_party2">Notify party 2</FormLabel>
+                <Autocomplete
+                  id="notify_party2"
+                  size="small"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      placeholder="Which party to notify"
+                    />
+                  )}
+                  options={consigneeList}
+                  getOptionLabel={(option) =>
+                    `${option.first_name} ${option.last_name}`
+                  }
+                  getOptionKey={(option) => option.person_id}
+                  value={shipmentHbl.notify_party2}
+                  onChange={(event, newValue) =>
+                    handleAutoCompleteChange(event, newValue, "notify_party2")
+                  }
+                />
+              </Grid>
+              <Grid size={4} />
+
+              <Grid sx={{ pt: 2, mb: 3 }}>
+                {shipmentHblId && !clone && (
+                  <ContainerLines
+                    shipmentHblId={shipmentHblId}
+                    reloadData={reloadContainerLines}
+                    setReloadData={setReloadContainerLines}
+                  />
+                )}
+              </Grid>
             </Grid>
-            <Grid size={2} />
+            <Grid size={4}>
+              <FileUploader
+                fileValue={shipmentHbl.file_urls ?? ""}
+                setUrlList={setUrlList}
+                urlList={urlList}
+              />
+            </Grid>
           </Grid>
         </div>
         <div

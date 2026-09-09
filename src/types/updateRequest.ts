@@ -25,4 +25,5 @@ export interface UpdateShipmentModel {
   deleted?: boolean;
   deleted_at?: string;
   unstuffing_place?: string;
+  file_urls?: string;
 }
