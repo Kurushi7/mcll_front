@@ -1,5 +1,5 @@
-export interface notification {
-  notification_Id?: string;
+export interface Notification {
+  notification_id?: number;
   user_id: number;
   message: string;
   type: string;
@@ -8,7 +8,6 @@ export interface notification {
 }
 
 export interface UpdateNotification {
-  notification_Id?: string;
   user_id?: number;
   message?: string;
   type?: string;

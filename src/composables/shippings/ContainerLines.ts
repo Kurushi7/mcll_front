@@ -1,9 +1,6 @@
 import { ListFilter } from "../../types/table";
 import axios from "axios";
-import {
-  ContainerLinesModel,
-  UpdateContainerLinesModel,
-} from "../../types/request";
+import { ContainerLinesModel } from "../../types/request";
 
 export const getShipmentVesselList = async (filter: ListFilter) => {
   const url = `${import.meta.env.VITE_REACT_APP_GOLANG_URL}/shipment-vessel-list`;

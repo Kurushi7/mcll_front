@@ -353,15 +353,15 @@ export default function DynamicFormOverlay({
                 size="small"
                 fullWidth={true}
               >
-                <FormLabel htmlFor="master_bl_ref">Booking reference</FormLabel>
+                <FormLabel htmlFor="booking_ref">Booking reference</FormLabel>
                 <Autocomplete
-                  id="master_bl_ref"
+                  id="booking_ref"
                   size="small"
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       variant="standard"
-                      name="master_bl_ref"
+                      name="booking_ref"
                       placeholder="Enter the booking ref"
                     />
                   )}
@@ -798,6 +798,7 @@ export default function DynamicFormOverlay({
                 payload.release_order
                   ? "completed"
                   : "pending";
+              console.log("pornec", payload.booking_ref);
             }
 
             if (columnId === "document_entries") {

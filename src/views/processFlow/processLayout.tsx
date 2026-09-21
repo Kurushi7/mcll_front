@@ -23,7 +23,7 @@ import { ShipmentProcessModel } from "../../types/request.ts";
 import { Alert, Button, Snackbar } from "@mui/material";
 import { getAllUsers } from "../../composables/users.tsx";
 import { saveNotifications } from "../../store/notifications/notification.ts";
-import { notification } from "../../types/notification.ts";
+import { Notification } from "../../types/notification.ts";
 import { useAppDispatch } from "../../store/store.ts";
 
 interface ProcessRow {
@@ -236,17 +236,17 @@ const ProcessLayout: React.FC<any> = () => {
     formPayload: Partial<ShipmentProcessModel>,
   ) => {
     if (columnId === "booking_instructions") {
-      const notifList: notification[] = [];
+      const notifList: Notification[] = [];
 
       fieldList.map((record) => {
         const userId = formPayload[record.field];
         if (userId === undefined) return;
-        const notif: notification = {
+        const notif: Notification = {
           user_id: userId,
           message: `Your have been assigned shipment process for ref ${formPayload.booking_ref}`,
           type: "process",
           is_read: false,
-          read_at: new Date().toISOString().split("T")[0],
+          read_at: new Date().toISOString(),
         };
 
         notifList.push(notif);

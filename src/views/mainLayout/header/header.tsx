@@ -3,18 +3,30 @@ import {
   Badge,
   Box,
   IconButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Toolbar,
+  Typography,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faUser } from "@fortawesome/free-solid-svg-icons";
 import { getNotificationList } from "../../../composables/notifications/notifications.tsx";
 import { FilterItem, ListFilter } from "../../../types/table.ts";
 import ListConstants from "../../../composables/constants/table.ts";
-import { notification } from "../../../types/notification.ts";
+import {
+  Notification,
+  UpdateNotification,
+} from "../../../types/notification.ts";
+import { NotificationsNone } from "@mui/icons-material";
+import {
+  markAllNotifsAsRead,
+  updateNotifications,
+} from "../../../store/notifications/notification.ts";
+import { useAppDispatch } from "../../../store/store.ts";
 
 export const Header = () => {
   const theme = useTheme();
@@ -27,7 +39,8 @@ export const Header = () => {
   const isNotifMenuOpen = Boolean(notifAnchor);
   const menuId = "primary-account-menu";
   const notifMenuId = "primary-account-notif-menu";
-  const [notifications, setNotifications] = React.useState<notification[]>([]);
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+  const dispatch = useAppDispatch();
 
   const handleProfileMenuOpen = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -47,6 +60,34 @@ export const Header = () => {
 
   const handleNotifMenuClose = () => {
     setNotifAnchor(null);
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const result = await dispatch(markAllNotifsAsRead());
+    if (!markAllNotifsAsRead.fulfilled.match(result)) {
+      return false;
+    }
+  };
+
+  const markAsRead = async (notification_id: number | undefined) => {
+    if (!notification_id) return false;
+
+    // setNotifications(()=> notifications.map((notification)=> (
+    //   if(notification.notification_id === notification_id){
+    //     return {...notification,}
+    //   }
+    // )))
+
+    const notif: UpdateNotification = {
+      is_read: true,
+    };
+
+    const result = await dispatch(
+      updateNotifications({ notification_id, data: notif }),
+    );
+    if (!updateNotifications.fulfilled.match(result)) {
+      return false;
+    }
   };
 
   const renderUserMenu = (
@@ -73,10 +114,110 @@ export const Header = () => {
       transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isNotifMenuOpen}
       onClose={handleNotifMenuClose}
+      slotProps={{
+        paper: {
+          sx: {
+            width: 360,
+            maxHeight: 450,
+            mt: 1,
+            borderRadius: 2,
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
+          },
+        },
+      }}
     >
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
+          Notifications
+        </Typography>
+
+        {notifications && notifications.length > 0 && (
+          <Typography
+            variant="caption"
+            color="primary"
+            sx={{ cursor: "pointer" }}
+            onClick={handleMarkAllAsRead}
+          >
+            Mark all as read
+          </Typography>
+        )}
+      </Box>
       {notifications &&
         notifications.map((item) => (
-          <MenuItem key={item.Notification_Id}>{item.message}</MenuItem>
+          <MenuItem
+            sx={{
+              px: 2,
+              py: 1.5,
+              alignItems: "flex-start",
+              whiteSpace: "normal",
+              borderBottom: "1px solid",
+              borderColor: "divider",
+
+              backgroundColor: item.is_read ? "transparent" : "action.hover",
+
+              "&:hover": {
+                backgroundColor: "action.hover",
+              },
+
+              "&:last-child": {
+                borderBottom: "none",
+              },
+            }}
+            key={item.notification_id}
+          >
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor: item.is_read ? "grey.400" : "success.main",
+                mt: 1,
+                mr: 1.5,
+                flexShrink: 0,
+              }}
+            />
+
+            <ListItemIcon sx={{ minWidth: 40, mt: 0.5 }}>
+              <NotificationsNone
+                color="primary"
+                sx={{
+                  fontSize: 22,
+                  color: item.is_read ? "action.disabled" : "primary.main",
+                }}
+              />
+            </ListItemIcon>
+
+            <ListItemText
+              onClick={() => markAsRead(item.notification_id)}
+              secondary={
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    lineHeight: 1.5,
+                    whiteSpace: "normal",
+                  }}
+                >
+                  {item.message}
+                </Typography>
+              }
+            />
+          </MenuItem>
         ))}
       ;
     </Menu>
@@ -86,8 +227,8 @@ export const Header = () => {
     (async () => {
       const filterItem: FilterItem[] = [
         {
-          field: "false",
-          value: "is_read",
+          field: "is_read",
+          value: "false",
           operator: ListConstants.EQUALS,
           logicOperator: "and",
         },
@@ -104,7 +245,8 @@ export const Header = () => {
 
       if (!response || !response.data) return;
 
-      const notifications: notification[] = response?.data?.data;
+      const notifications: Notification[] = response?.data?.data;
+
       setNotifications(notifications);
       setNotifBadge(response.data.total);
     })();
