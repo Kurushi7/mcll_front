@@ -83,7 +83,7 @@ export default function DynamicFormOverlay({
   > | null>(null);
   const { columnId, initialData } = activeForm;
   const [consigneeList, setConsigneeList] = React.useState<PersonCountry[]>([]);
-  const [shipmentHbl, setShipmentHbl] = useState<HblFormModel>(blankItem);
+  const [shipmentHbl, _setShipmentHbl] = useState<HblFormModel>(blankItem);
   const [selectedConsignee, setSelectedConsignee] =
     React.useState<PersonCountry | null>(null);
   const [noaUrlList, setNoaUrlList] = React.useState<

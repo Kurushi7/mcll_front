@@ -26,7 +26,8 @@ import {
   markAllNotifsAsRead,
   updateNotifications,
 } from "../../../store/notifications/notification.ts";
-import { useAppDispatch } from "../../../store/store.ts";
+import { RootState, useAppDispatch } from "../../../store/store.ts";
+import { useSelector } from "react-redux";
 
 export const Header = () => {
   const theme = useTheme();
@@ -41,6 +42,7 @@ export const Header = () => {
   const notifMenuId = "primary-account-notif-menu";
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const dispatch = useAppDispatch();
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
   const handleProfileMenuOpen = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -72,11 +74,15 @@ export const Header = () => {
   const markAsRead = async (notification_id: number | undefined) => {
     if (!notification_id) return false;
 
-    // setNotifications(()=> notifications.map((notification)=> (
-    //   if(notification.notification_id === notification_id){
-    //     return {...notification,}
-    //   }
-    // )))
+    setNotifications(
+      notifications.map((notification) => {
+        if (notification.notification_id === notification_id) {
+          return { ...notification, is_read: true };
+        }
+
+        return notification;
+      }),
+    );
 
     const notif: UpdateNotification = {
       is_read: true,
@@ -229,6 +235,12 @@ export const Header = () => {
         {
           field: "is_read",
           value: "false",
+          operator: ListConstants.EQUALS,
+          logicOperator: "and",
+        },
+        {
+          field: "user_id",
+          value: user_id,
           operator: ListConstants.EQUALS,
           logicOperator: "and",
         },
