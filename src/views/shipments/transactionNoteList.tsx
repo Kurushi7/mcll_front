@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -184,6 +184,10 @@ const TransactionNoteList: React.FC<Props> = ({ shipmentId, hblId }) => {
         setTransactionId(row.transaction_id);
       }
     };
+
+    useEffect(() => {
+      setReloadData(true);
+    }, [hblId]);
 
     return (
       <>

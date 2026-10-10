@@ -390,7 +390,7 @@ const Shipment = () => {
               <Grid2 size={10}>
                 {shipmentHblId && (
                   <TransactionNoteList
-                    key={newHblId}
+                    key={shipmentHblId}
                     hblId={shipmentHblId}
                     shipmentId={intShipmentId}
                   />
